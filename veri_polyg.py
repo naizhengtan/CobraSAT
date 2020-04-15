@@ -5,6 +5,7 @@ import time
 # ====== various encodings =====
 
 def polygraph_sat(n, edges, constraints, s): 
+    print(constraints)
     # maybe should just return a list?
     # requires all edges of known RW
     for edge in edges:
@@ -14,6 +15,9 @@ def polygraph_sat(n, edges, constraints, s):
     for constraint in constraints:
         s.add(Xor(var(constraint[0]), 
                   var(constraint[1])))
+
+# def generate_vars(n):
+#     return [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
 
 def var(edge):
     return Bool(label(edge))
@@ -39,20 +43,21 @@ def encode_polyg_tc1(n, edges, constraints, s):
         s.add(Not(aux([i, i])))
 
     # 2) transitive
+    # 3) closure of edges
     for begin in range(n):
         for end in range(n):
             for mid in range(n):
                 connecting = And(aux([begin, mid]), 
                                   aux([mid, end]))
                 s.add(Implies(connecting, aux([begin, end])))
+            s.add(Implies(var([begin, end]), aux([begin, end])))
 
+    # apparently need to include all implies statements? just including the implies of the edges aux is not enough
     # 3) closure of edges
-    for edge in edges:
-        s.add(Implies(var(edge), aux(edge)))
+    # for edge in edges:
+        # s.add(Implies(var(edge), aux(edge)))
 
-    return s
-
-def encode_polyg_tc3(n, edges, constraints):
+def encode_polyg_tc3(n, edges, constraints, s):
     print("[TODO] your code here; feel free to modify the function signature")
     assert False
 
@@ -90,14 +95,15 @@ def load_polyg(poly_f):
         elif symbol == "c":
             str_groups = content.split("|")
             assert len(str_groups) == 2, "ill-format constraints, not two groups"
-            con = []
-            for str_group in str_groups:
-                group = []
-                str_edges = str_group.split(";")
-                assert len(str_edges) >= 1, "ill-format constraints, empty constraint"
-                for str_edge in str_edges:
-                    group.append(extract_edge(str_edge))
-                con.append(group)
+            con = [[int(g) for g in group.split(',')] for group in str_groups]
+            # con = []
+            # for str_group in str_groups:
+                # group = []
+                # str_edges = str_group.split(";")
+                # assert len(str_edges) >= 1, "ill-format constraints, empty constraint"
+                # for str_edge in str_edges:
+                    # group.append(extract_edge(str_edge))
+                # con.append(group)
             constraints.append(con)
         else:
             print("Line = %s" % line)
@@ -129,13 +135,14 @@ def main(encoding, poly_f):
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
-    print("finish construction of clauses")
+    # print("finish construction of clauses")
 
     t2 = time.time()
     print("clause construction: %.fms" % ((t2-t1)*1000))
 
     # (2) solve the above encoding
     print(s.check())
+    # print(s.model())
 
     t3 = time.time()
 
