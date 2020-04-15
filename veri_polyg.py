@@ -4,13 +4,53 @@ import time
 
 # ====== various encodings =====
 
-# n : integer
+def polygraph_sat(n, edges, constraints, s): 
+    # maybe should just return a list?
+    # requires all edges of known RW
+    for edge in edges:
+        s.add(var(edge))
+
+    # requires one but not both of constraints to be satisfied
+    for constraint in constraints:
+        s.add(Xor(var(constraint[0]), 
+                  var(constraint[1])))
+
+def var(edge):
+    return Bool(label(edge))
+
+def aux(edge):
+    return Bool(label_aux(edge))
+
+def label(edge):
+    # be careful of slow str ops; 
+    # could just label e1, e2 ... (hard to lookup with constraints tho)
+    return ','.join([str(e) for e in edge])
+
+def label_aux(edge):
+    return 'a' + label(edge)
+
+# n : integer, number of vertices
 # edges : [[i,j], [j,k], ...]
 # choice : [ ([[i,j],[j,k],...], [...]), ...   ]
-def encode_polyg_tc1(n, edges, constraints):
-    print("[TODO] your code here; feel free to modify the function signature")
-    assert False
+def encode_polyg_tc1(n, edges, constraints, s):
+    # acyclicity constraints:
+    # 1) irreflexive
+    for i in range(n):
+        s.add(Not(aux([i, i])))
 
+    # 2) transitive
+    for begin in range(n):
+        for end in range(n):
+            for mid in range(n):
+                connecting = And(aux([begin, mid]), 
+                                  aux([mid, end]))
+                s.add(Implies(connecting, aux([begin, end])))
+
+    # 3) closure of edges
+    for edge in edges:
+        s.add(Implies(var(edge), aux(edge)))
+
+    return s
 
 def encode_polyg_tc3(n, edges, constraints):
     print("[TODO] your code here; feel free to modify the function signature")
@@ -77,25 +117,29 @@ def main(encoding, poly_f):
     #set_option("smt.timeout", 120000) # 120s timeout
 
     t1 = time.time()
+    
+    s = Solver()
+    polygraph_sat(n, edges, constraints, s)
 
     # (1) encode graph (n, edges, constraints)
     if "tc1" == encoding:
-        encode_polyg_tc1(n, edges, constraints)
+        encode_polyg_tc1(n, edges, constraints, s)
     elif "tc3" == encoding:
-        encode_polyg_tc3(n, edges, constraints)
+        encode_polyg_tc3(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
     print("finish construction of clauses")
 
     t2 = time.time()
+    print("clause construction: %.fms" % ((t2-t1)*1000))
 
     # (2) solve the above encoding
-    print("[TODO] your code here; use SMT solvers")
+    print(s.check())
 
     t3 = time.time()
 
-    print("clause construction: %.fms" % ((t2-t1)*1000))
+    # print("clause construction: %.fms" % ((t2-t1)*1000))
     print("solve constraints: %.fms" % ((t3-t2)*1000))
 
 
