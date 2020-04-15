@@ -53,6 +53,7 @@ def encode_polyg_tc1(n, edges, constraints, s):
             s.add(Implies(var([begin, end]), aux([begin, end])))
 
     # apparently need to include all implies statements? just including the implies of the edges aux is not enough
+    # Probably because of the constraint possible edges!
     # 3) closure of edges
     # for edge in edges:
         # s.add(Implies(var(edge), aux(edge)))
