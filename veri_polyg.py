@@ -44,6 +44,8 @@ def encode_polyg_tc1(n, edges, constraints, s):
                 connecting = And(aux([begin, mid]), 
                                   aux([mid, end]))
                 s.add(Implies(connecting, aux([begin, end])))       # 2) transitive
+        print('\r{:.2f}%'.format(begin / n), end='')
+    print('\n')
 
 def encode_polyg_tc3(n, edges, constraints, s):
     for begin in range(n):
