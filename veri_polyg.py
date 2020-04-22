@@ -4,6 +4,9 @@ import time
 
 # ====== various encodings =====
 
+vars = []
+vars_aux = []
+
 def polygraph_sat(n, edges, constraints, s): 
     # maybe should just return a list?
     # requires all edges of known RW
@@ -17,14 +20,19 @@ def polygraph_sat(n, edges, constraints, s):
         s.add(Xor(var(constraint[0]), 
                   var(constraint[1])))
 
-# def generate_vars(n):
-#     return [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
+
+def generate_vars(n):
+    global vars, vars_aux
+    print("generating variables...")
+    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)] 
+    vars_aux = [[Bool(label_aux([i, j])) for i in range(n)] for j in range(n)]
+    print("done generating variables.")
 
 def var(edge):
-    return Bool(label(edge))
+    return vars[edge[0]][edge[1]]
 
 def aux(edge):
-    return Bool(label_aux(edge))
+    return vars_aux[edge[0]][edge[1]]
 
 def label(edge):
     # be careful of slow str ops; 
@@ -47,6 +55,19 @@ def encode_polyg_tc1(n, edges, constraints, s):
         print('\r{:.2f}%'.format(begin / n), end='')
     print('\n')
 
+def encode_polyg_tc1_faster(n, edges, constraints, s):
+    # can't just iterate edges due to constraints also being a possibility as an edge
+
+    for begin in range(n):
+        s.add(Not(aux([begin, begin])))                             # 1) irreflexive
+        for end in range(n):
+            s.add(Implies(var([begin, end]), aux([begin, end])))    # 3) closure of edges
+            for mid in range(n):
+                connecting = And(aux([begin, mid]), aux([mid, end]))
+                s.add(Implies(connecting, aux([begin, end])))       # 2) transitive
+        print('\r{:.2f}%'.format(begin / n), end='')
+    print('\n')
+
 def encode_polyg_tc3(n, edges, constraints, s):
     for begin in range(n):
         s.add(Not(var([begin, begin])))
@@ -54,6 +75,8 @@ def encode_polyg_tc3(n, edges, constraints, s):
             for mid in range(n):
                 connecting = And(var([begin, mid]), var([mid, end]))
                 s.add(Implies(connecting, var([begin, end])))
+        print('\r{:.2f}%'.format(begin / n), end='')
+    print('\n')
 
 # ====== load file =====
 
@@ -100,6 +123,9 @@ def load_polyg(poly_f):
 # === main logic ===
 
 def main(encoding, poly_f):
+    set_param('parallel.enable', True)
+    set_param('parallel.threads.max', 4)
+    
     n, edges, constraints = load_polyg(poly_f)
     print("#nodes=%d" % n)
     print("#edges=%d" % len(edges))
@@ -108,8 +134,10 @@ def main(encoding, poly_f):
     #set_option("smt.timeout", 120000) # 120s timeout
 
     t1 = time.time()
-    
+        
     s = Solver()
+
+    generate_vars(n)
     polygraph_sat(n, edges, constraints, s)
 
     # (1) encode graph (n, edges, constraints)
