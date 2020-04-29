@@ -57,7 +57,6 @@ def encode_polyg_tc1(n, edges, constraints, s):
         print('\r{:.2f}%'.format(begin / n), end='')
     print('\n')
 
-
 def encode_polyg_tc3(n, edges, constraints, s):
     for begin in range(n):
         s.add(Not(var([begin, begin])))
