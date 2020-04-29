@@ -24,6 +24,7 @@ class CNFBuilder:
         return [*args]
     
     def append_Xor(self, var1, var2):
+        Bool, Not, Or, Implies = self.aliases()
         # xor is associative
         self.clauses.append(Or(Not(var1), Not(var2)))
         self.clauses.append(Or(var1, var2))
@@ -131,6 +132,8 @@ def main(encoding, poly_f, output_file):
 
     b = CNFBuilder()
     generate_vars(n, b)
+
+    polygraph_sat(n, edges, constraints, b)
 
     print('encoding...')    
     if encoding == 'tc1':
