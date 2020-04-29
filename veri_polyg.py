@@ -2,6 +2,8 @@ from z3 import *
 import sys
 import time
 
+from multiprocessing import Pool, cpu_count
+
 # ====== various encodings =====
 
 vars = []
@@ -55,18 +57,6 @@ def encode_polyg_tc1(n, edges, constraints, s):
         print('\r{:.2f}%'.format(begin / n), end='')
     print('\n')
 
-def encode_polyg_tc1_faster(n, edges, constraints, s):
-    # can't just iterate edges due to constraints also being a possibility as an edge
-
-    for begin in range(n):
-        s.add(Not(aux([begin, begin])))                             # 1) irreflexive
-        for end in range(n):
-            s.add(Implies(var([begin, end]), aux([begin, end])))    # 3) closure of edges
-            for mid in range(n):
-                connecting = And(aux([begin, mid]), aux([mid, end]))
-                s.add(Implies(connecting, aux([begin, end])))       # 2) transitive
-        print('\r{:.2f}%'.format(begin / n), end='')
-    print('\n')
 
 def encode_polyg_tc3(n, edges, constraints, s):
     for begin in range(n):
@@ -122,7 +112,7 @@ def load_polyg(poly_f):
 
 # === main logic ===
 
-def main(encoding, poly_f):
+def main(encoding, poly_f, output_file):
     set_param('parallel.enable', True)
     set_param('parallel.threads.max', 4)
     
@@ -154,21 +144,27 @@ def main(encoding, poly_f):
     print("clause construction: %.fms" % ((t2-t1)*1000))
 
     # (2) solve the above encoding
-    print(s.check())
-    t3 = time.time()
-
-    # print("clause construction: %.fms" % ((t2-t1)*1000))
-    print("solve constraints: %.fms" % ((t3-t2)*1000))
-
-
+    if output_file:
+        print("writing to file: " + output_file)
+        with open(output_file, 'w') as f:
+            f.write(s.to_smt2())
+        t3 = time.time()
+        print("write to file: %.fms" % ((t3-t2)*1000))
+    else:
+        print(s.check())
+        t3 = time.time()
+        print("solve constraints: %.fms" % ((t3-t2)*1000))
 
 
 def usage_exit():
     print("Usage: veri_polyg.py [tc1|tc3] <polyg_file>")
     exit(1)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
+if __name__ == "__main__": 
+    output_file = ''
+    if len(sys.argv) != 3 and len(sys.argv) != 4:
         usage_exit()
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 4:
+        output_file = sys.argv[3]
+    main(sys.argv[1], sys.argv[2], output_file)
 
