@@ -67,6 +67,48 @@ def encode_polyg_tc3(n, edges, constraints, s):
         print('\r{:.2f}%'.format(begin / n), end='')
     print('\n')
 
+def encode_polyg_unary(n, edges, constraints, s):
+    # auxilary variables aux([num_y, num_element]), note that y_i has n-1 elements
+    for begin in range(n):
+        for end in range(n):
+            # s.add(Implies(var([begin, end]), less(begin, end, n)))
+            s.add(Implies(var([begin, end]), less(begin, end, n)))
+            s.add(unary(begin, n))
+        print('\r{:.2f}%'.format(begin / n), end='')
+    print('\n')
+
+def unary(ya, n):
+    is_unary = True
+
+    for i in range(1, n-1):
+        y_i = aux([ya, i])
+        y_prev = aux([ya, i-1])
+        is_unary = And(is_unary, Implies(y_prev, y_i))
+    
+    return is_unary
+
+def less(ya, yb, n):
+    u = [Bool(','.join(['u', str(ya), str(yb), str(i)])) for i in range(n-1)]
+    return Exists(u, lessunr(ya, yb, u, n))
+
+def lessunr(ya, yb, u, n):
+    # ya, yb are indices into aux([ya, element])
+    unary_compare = True
+    u_nonzero = False  
+   
+    for i in range(n-1):
+        y_i = aux([ya, i])
+        z_i = aux([yb, i])
+        u_i = u[i]
+        # u_i = Bool(','.join(['u', str(ya), str(yb), str(i)]))
+
+        unary_compare_partial = And(Or(Not(y_i), Not(u_i)), Or(z_i, Not(u_i)))
+        unary_compare = And(unary_compare, unary_compare_partial)
+
+        u_nonzero = Or(u_nonzero, u_i)
+    
+    return And(unary_compare, u_nonzero)
+
 # ====== load file =====
 
 def extract_edge(edge):
@@ -134,10 +176,11 @@ def main(encoding, poly_f, output_file):
         encode_polyg_tc1(n, edges, constraints, s)
     elif "tc3" == encoding:
         encode_polyg_tc3(n, edges, constraints, s)
+    elif "unr" == encoding:
+        encode_polyg_unary(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
-    # print("finish construction of clauses")
 
     t2 = time.time()
     print("clause construction: %.fms" % ((t2-t1)*1000))
@@ -146,6 +189,8 @@ def main(encoding, poly_f, output_file):
     if output_file:
         print("writing to file: " + output_file)
         with open(output_file, 'w') as f:
+            # there also exists: http://z3prover.github.io/api/html/z3py_8py_source.html#l06889
+            # s.dimacs() -> but not sure if this is advised?
             f.write(s.to_smt2())
         t3 = time.time()
         print("write to file: %.fms" % ((t3-t2)*1000))
@@ -156,7 +201,7 @@ def main(encoding, poly_f, output_file):
 
 
 def usage_exit():
-    print("Usage: veri_polyg.py [tc1|tc3] <polyg_file>")
+    print("Usage: veri_polyg.py [tc1|tc3|unr] <polyg_file>")
     exit(1)
 
 if __name__ == "__main__": 
