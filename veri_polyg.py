@@ -1,6 +1,7 @@
 from z3 import *
 import sys
 import time
+import math
 
 from multiprocessing import Pool, cpu_count
 
@@ -9,7 +10,7 @@ from multiprocessing import Pool, cpu_count
 vars = []
 vars_aux = []
 
-def polygraph_sat(n, edges, constraints, s): 
+def polygraph_sat(n, edges, constraints, s):
     # maybe should just return a list?
     # requires all edges of known RW
     for edge in edges:
@@ -19,15 +20,22 @@ def polygraph_sat(n, edges, constraints, s):
     # actually, this is between two groups (either must be true)
     # must revert the encoding
     for constraint in constraints:
-        s.add(Xor(var(constraint[0]), 
+        s.add(Xor(var(constraint[0]),
                   var(constraint[1])))
 
 
 def generate_vars(n):
     global vars, vars_aux
     print("generating variables...")
-    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)] 
+    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
     vars_aux = [[Bool(label_aux([i, j])) for i in range(n)] for j in range(n)]
+    print("done generating variables.")
+
+def generate_vars_binary(n):
+    global vars, vars_aux
+    print("generating variables...")
+    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
+    vars_aux = [BitVec(','.join(['a', str(i)]), int(math.ceil(math.log2(n)))) for i in range(n)]
     print("done generating variables.")
 
 def var(edge):
@@ -36,8 +44,11 @@ def var(edge):
 def aux(edge):
     return vars_aux[edge[0]][edge[1]]
 
+def aux_binary(i):
+    return vars_aux[i]
+
 def label(edge):
-    # be careful of slow str ops; 
+    # be careful of slow str ops;
     # could just label e1, e2 ... (hard to lookup with constraints tho)
     return ','.join([str(e) for e in edge])
 
@@ -51,7 +62,7 @@ def encode_polyg_tc1(n, edges, constraints, s):
         for end in range(n):
             s.add(Implies(var([begin, end]), aux([begin, end])))    # 3) closure of edges
             for mid in range(n):
-                connecting = And(aux([begin, mid]), 
+                connecting = And(aux([begin, mid]),
                                   aux([mid, end]))
                 s.add(Implies(connecting, aux([begin, end])))       # 2) transitive
         print('\r{:.2f}%'.format(begin / n), end='')
@@ -84,7 +95,7 @@ def unary(ya, n):
         y_i = aux([ya, i])
         y_prev = aux([ya, i-1])
         is_unary = And(is_unary, Implies(y_prev, y_i))
-    
+
     return is_unary
 
 def less(ya, yb, n):
@@ -94,8 +105,8 @@ def less(ya, yb, n):
 def lessunr(ya, yb, u, n):
     # ya, yb are indices into aux([ya, element])
     unary_compare = True
-    u_nonzero = False  
-   
+    u_nonzero = False
+
     for i in range(n-1):
         y_i = aux([ya, i])
         z_i = aux([yb, i])
@@ -106,8 +117,15 @@ def lessunr(ya, yb, u, n):
         unary_compare = And(unary_compare, unary_compare_partial)
 
         u_nonzero = Or(u_nonzero, u_i)
-    
+
     return And(unary_compare, u_nonzero)
+
+def encode_polyg_topo(n, edges, constraints, s):
+    bits = math.log2(n)
+    for begin in range(n):
+       for end in range(n):
+           s.add(Implies(var([begin, end]), \
+                         ULT(aux_binary(begin), aux_binary(end))))
 
 # ====== load file =====
 
@@ -115,7 +133,6 @@ def extract_edge(edge):
     tokens = edge.split(",")
     assert len(tokens) == 2, "ill-format edge: a,b"
     return [int(tokens[0]), int(tokens[1])]
-
 
 def load_polyg(poly_f):
     with open(poly_f) as f:
@@ -156,7 +173,7 @@ def load_polyg(poly_f):
 def main(encoding, poly_f, output_file):
     set_param('parallel.enable', True)
     set_param('parallel.threads.max', 4)
-    
+
     n, edges, constraints = load_polyg(poly_f)
     print("#nodes=%d" % n)
     print("#edges=%d" % len(edges))
@@ -165,19 +182,26 @@ def main(encoding, poly_f, output_file):
     #set_option("smt.timeout", 120000) # 120s timeout
 
     t1 = time.time()
-        
-    s = Solver()
 
-    generate_vars(n)
-    polygraph_sat(n, edges, constraints, s)
+    s = Solver()
 
     # (1) encode graph (n, edges, constraints)
     if "tc1" == encoding:
+        generate_vars(n)
+        polygraph_sat(n, edges, constraints, s)
         encode_polyg_tc1(n, edges, constraints, s)
     elif "tc3" == encoding:
+        generate_vars(n)
+        polygraph_sat(n, edges, constraints, s)
         encode_polyg_tc3(n, edges, constraints, s)
     elif "unr" == encoding:
+        generate_vars(n)
+        polygraph_sat(n, edges, constraints, s)
         encode_polyg_unary(n, edges, constraints, s)
+    elif "top" == encoding:
+        generate_vars_binary(n)
+        polygraph_sat(n, edges, constraints, s)
+        encode_polyg_topo(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
@@ -201,10 +225,10 @@ def main(encoding, poly_f, output_file):
 
 
 def usage_exit():
-    print("Usage: veri_polyg.py [tc1|tc3|unr] <polyg_file>")
+    print("Usage: veri_polyg.py [tc1|tc3|unr|top] <polyg_file>")
     exit(1)
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     output_file = ''
     if len(sys.argv) != 3 and len(sys.argv) != 4:
         usage_exit()
