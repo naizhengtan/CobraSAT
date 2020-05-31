@@ -23,7 +23,6 @@ def polygraph_sat(n, edges, constraints, s):
         s.add(Xor(var(constraint[0]),
                   var(constraint[1])))
 
-
 def generate_vars(n):
     global vars, vars_aux
     print("generating variables...")
@@ -127,6 +126,22 @@ def encode_polyg_topo(n, edges, constraints, s):
            s.add(Implies(var([begin, end]), \
                          ULT(aux_binary(begin), aux_binary(end))))
 
+def encode_polyg_transitive(n, edges, constraints, s):
+    # https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-transitive-closure
+    # Irreflexive transitive closure => no cycles
+    # A = DeclareSort()
+    Ints = IntSort()
+    Bools = BoolSort()
+    R = Function('R', Ints, Ints, Bools) # i R j = Bool
+    TC_R = TransitiveClosure(R)
+
+    for begin in range(n):
+        for end in range(n):
+            s.add(Not(TC_R(begin, begin))) # irreflexive
+
+            if begin != end:
+                s.add(Implies(var([begin, end]), R(begin, end)))
+
 # ====== load file =====
 
 def extract_edge(edge):
@@ -202,6 +217,10 @@ def main(encoding, poly_f, output_file):
         generate_vars_binary(n)
         polygraph_sat(n, edges, constraints, s)
         encode_polyg_topo(n, edges, constraints, s)
+    elif "tc" == encoding:
+        generate_vars(n)
+        polygraph_sat(n, edges, constraints, s)
+        encode_polyg_transitive(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
