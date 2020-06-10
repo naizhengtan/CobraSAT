@@ -3,7 +3,7 @@ import sys
 import time
 import math
 
-from multiprocessing import Pool, cpu_count
+# from multiprocessing import Pool, cpu_count
 
 # ====== various encodings =====
 
@@ -26,14 +26,14 @@ def polygraph_sat(n, edges, constraints, s):
 def generate_vars(n):
     global vars, vars_aux
     print("generating variables...")
-    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
-    vars_aux = [[Bool(label_aux([i, j])) for i in range(n)] for j in range(n)]
+    vars = [[Bool(label([begin, end])) for end in range(n)] for begin in range(n)]
+    vars_aux = [[Bool(label_aux([begin, end])) for end in range(n)] for begin in range(n)]
     print("done generating variables.")
 
 def generate_vars_binary(n):
     global vars, vars_aux
     print("generating variables...")
-    vars = [[Bool(label([i, j])) for i in range(n)] for j in range(n)]
+    vars = [[Bool(label([begin, end])) for end in range(n)] for begin in range(n)]
     vars_aux = [BitVec(','.join(['a', str(i)]), int(math.ceil(math.log2(n)))) for i in range(n)]
     print("done generating variables.")
 
@@ -120,7 +120,6 @@ def lessunr(ya, yb, u, n):
     return And(unary_compare, u_nonzero)
 
 def encode_polyg_topo(n, edges, constraints, s):
-    bits = math.log2(n)
     for begin in range(n):
        for end in range(n):
            s.add(Implies(var([begin, end]), \
@@ -136,11 +135,36 @@ def encode_polyg_transitive(n, edges, constraints, s):
     TC_R = TransitiveClosure(R)
 
     for begin in range(n):
+        s.add(Not(TC_R(begin, begin))) # irreflexive
         for end in range(n):
-            s.add(Not(TC_R(begin, begin))) # irreflexive
+            s.add(Implies(var([begin, end]), R(begin, end)))
+            # if begin != end:
+            #     s.add(Implies(var([begin, end]), R(begin, end)))
 
-            if begin != end:
-                s.add(Implies(var([begin, end]), R(begin, end)))
+# probably >= topo time since we aren't able to precompute leaves
+def encode_polyg_tree(n, edges, constraints, s):
+    # can we get more info about possible leaf nodes by constraints?
+    for begin in range(n):
+        at_least_one = False
+        is_leaf = False
+
+        s.add(Not(var([begin, begin])))
+        s.add(UGE(aux_binary(begin), 0))
+        s.add(ULE(aux_binary(begin), n - 1))
+
+        for end in range(n):
+            # If there is an edge from begin to end, it is not a leaf
+            is_leaf = And(Not(var([begin, end])), is_leaf)
+            # s.add(Implies(var([begin, end]), UGT(aux_binary(begin), 0)))
+
+            # dist_to_leaf(begin) > dist_to_leaf(end)
+            s.add(Implies(var([begin, end]), UGT(aux_binary(begin), aux_binary(end))))
+
+            # at least one is k - 1
+            at_least_one = Or(at_least_one, Implies(var([begin, end]), aux_binary(end) == (aux_binary(begin) - 1)))
+
+        s.add(Implies(is_leaf, aux_binary(begin) == 0))
+        s.add(at_least_one)
 
 # ====== load file =====
 
@@ -201,6 +225,8 @@ def main(encoding, poly_f, output_file):
     s = Solver()
 
     # (1) encode graph (n, edges, constraints)
+    # should prolly move generate_vars and polygraph_sat into the encoding 
+    # functions
     if "tc1" == encoding:
         generate_vars(n)
         polygraph_sat(n, edges, constraints, s)
@@ -221,6 +247,10 @@ def main(encoding, poly_f, output_file):
         generate_vars(n)
         polygraph_sat(n, edges, constraints, s)
         encode_polyg_transitive(n, edges, constraints, s)
+    elif "tree" == encoding:
+        generate_vars_binary(n)
+        polygraph_sat(n, edges, constraints, s)
+        encode_polyg_tree(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
@@ -241,10 +271,12 @@ def main(encoding, poly_f, output_file):
         print(s.check())
         t3 = time.time()
         print("solve constraints: %.fms" % ((t3-t2)*1000))
+        # for debugging:
+        # print(s.model())
 
 
 def usage_exit():
-    print("Usage: veri_polyg.py [tc1|tc3|unr|top] <polyg_file>")
+    print("Usage: veri_polyg.py [tc1|tc3|unr|top|tc|tree] <polyg_file>")
     exit(1)
 
 if __name__ == "__main__":
