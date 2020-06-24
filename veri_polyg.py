@@ -166,6 +166,77 @@ def encode_polyg_tree(n, edges, constraints, s):
         s.add(Implies(is_leaf, aux_binary(begin) == 0))
         s.add(at_least_one)
 
+# def encode_polyg_axiom(n, edges, constraints, s):
+#     # Do we really need a WR distinction here? Let's try without
+#     WR = Function('WR', Ints, Ints, Bools) # WR relation
+#     # CO = Function('CO', Ints, Ints, Bools) # Commit Order
+
+#    for begin in range(n):
+#         s.add(Not(TC_R(begin, begin))) # irreflexive
+#         for end in range(n):
+#             # constraint encodings already account for
+#             s.add(Implies(var([begin, end]), WR(begin, end)))
+#             # s.add(Implies(WR(begin, end), CO(begin, end)))
+
+#             # from topo (total ordering):
+#             s.add(Implies(var([begin, end]), \
+#                             ULT(aux_binary(begin), aux_binary(end))))
+
+#             s.add()
+
+def encode_polyg_be19(n, edges, constraints, s):
+    # require WR edges
+    for edge in edges:
+        s.add(var(edge))
+    # CO = Function('WR', Ints, Ints, Bools) # Commit Order
+
+    # encode the polyg constraints in a different way here
+    # each constraint option (i, k), (k, j) is a i wr(x) j, k writes x relation
+    for constraint in constraints:
+        t1 = constraint[1][1]
+        t2 = constraint[0][1]
+        t3 = constraint[0][0]
+
+        assert t2 == constraint[1][0]
+
+        # s.add(Implies(aux_binary(t2) < aux_binary(t3), aux_binary(t2) < aux_binary(t1))
+        # could also use the relation theories (probably not as good)
+        # s.add(Implies(CO(t2, t3), CO(t2, t1)))
+        s.add(Implies(var([t2, t3]), var([t2, t1])))
+
+    # careful: can't actually use topo here cause that does not imply total order of CO i think
+    # since the topo => acyclic, and we no longer have the constraints!
+    # could we use integer theories somehow?
+    for begin in range(n):
+        for end in range(n):
+            if begin != end:
+                s.add(Xor(var([begin, end]), var([end, begin])))
+                for middle in range(n):
+                    if begin != middle and end != middle:
+                        s.add(Implies(And(var([begin, middle]), var([middle, end])), var([begin, end])))
+
+def encode_polyg_be19_rel(n, edges, constraints, s):
+    # require WR edges
+    for edge in edges:
+        s.add(var(edge))
+    CO = Function('WR', Ints, Ints, Bools) # Commit Order
+
+    # encode the polyg constraints in a different way here
+    # each constraint option (i, k), (k, j) is a i wr(x) j, k writes x relation
+    for constraint in constraints:
+        t1 = constraint[1][1]
+        t2 = constraint[0][1]
+        t3 = constraint[0][0]
+
+        assert t2 == constraint[1][0]
+        s.add(Implies(var([t2, t3]), var([t2, t1])))
+
+    for begin in range(n):
+        for end in range(n):
+            if begin != end:
+                s.add(Implies(CO(
+
+
 # ====== load file =====
 
 def extract_edge(edge):
@@ -225,8 +296,8 @@ def main(encoding, poly_f, output_file):
     s = Solver()
 
     # (1) encode graph (n, edges, constraints)
-    # should prolly move generate_vars and polygraph_sat into the encoding 
-    # functions
+    # should prolly move generate_vars and polygraph_sat into the encoding
+    # functions for encapsulation
     if "tc1" == encoding:
         generate_vars(n)
         polygraph_sat(n, edges, constraints, s)
@@ -251,6 +322,13 @@ def main(encoding, poly_f, output_file):
         generate_vars_binary(n)
         polygraph_sat(n, edges, constraints, s)
         encode_polyg_tree(n, edges, constraints, s)
+    elif "be19" == encoding:
+        generate_vars(n)
+        # don't need polygraph sat here.
+        encode_polyg_be19(n, edges, constraints, s)
+    elif "betop" == encoding:
+        generate_vars(n)
+        encode_polyg_betop(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
         return 1
