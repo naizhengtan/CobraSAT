@@ -1,0 +1,43 @@
+TODOs
+---
+
+- write down encoding details
+  -- SAT
+    -- tc1/tc3
+    -- UNR
+    -- BE19
+  -- SMT
+    -- topo-sorting
+    -- transitive closure
+    -- tree-reduction
+    -- optimized-BE19
+    -- MonoSAT
+
+  -- what else?
+
+
+
+
+
+
+
+
+
+
+
+
+done
+-----
+
+- [DONE]Fill in the "[TODO]" in the script "veri_polyg.py"
+
+- [DONE]Unit-testing your script using small polygraphs (e.g., 1cons.polyg,
+  rmw.polyg, and shared_successor.polyg). You might want to write you own "unit
+  test" polygraph case.
+    -- 1cons, rmw, shared_successor should pass
+    -- unsat, cycle should fail
+
+- [DONE]Evaluate different encodings (tc1 and tc3, so far) on different sizes of
+  polygraphs (100ndoes, 200nodes, 500nodes, and 1000nodes) and compare their
+  performance.
+

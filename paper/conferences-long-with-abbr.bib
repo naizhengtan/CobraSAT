@@ -1,0 +1,283 @@
+% @string{NSDI="Symposium on Networked Systems Design and Implementation (NSDI)"}
+% @string{SOSP="ACM Symposium on Operating Systems Principles (SOSP)"}
+% @string{OSDI = {Symposium on Operating Systems Design and Implementation (OSDI)}}
+% @string{CONEXT = {ACM Conference on emerging Networking EXperiments and Technologies (CoNEXT)}}
+% @string{ICNP = {IEEE International Conference on Network Protocols (ICNP)}}
+% @string{HOTOS = "Workshop on Hot Topics in Operating Systems (HotOS)"}
+% @string{CCC = {IEEE Conference on Computational Complexity (CCC)}}
+% @string{STOC = "ACM Symposium on the Theory of Computing (STOC)"}
+% @string{FOCS = "Symposium on Foundations of Computer Science (FOCS)"}
+% @string{FAST = "Conference on File and Storage Technologies (FAST)"}
+% @string{EUROSYS="European Conference on Computer Systems (EuroSys)"}
+% @string{CACM = {Communications of the ACM (CACM)}}}
+% @string{ISC = {International Conference on Information Security}}
+% @string{CRYPTO = {IACR International Cryptology Conference (CRYPTO)}}
+% @string{SIGCOMM = {ACM SIGCOMM}}
+% @string{EUROCRYPT = {Annual International Conference on the Theory and
+%     Applications of Cryptographic Techniques (EUROCRYPT)}}
+% @string{ASIACRYPT = {ASIACRYPT}}
+% @string{TCC = "IACR Theory of Cryptography Conference (TCC)"}
+% @string{CCS = {ACM Conference on Computer and Communications Security
+%     (CCS)}}
+% 
+% 
+% @string{USENIX = {{USENIX} Annual Technical Conference}}
+% @string{ATC = USENIX} 
+% 
+% @string{HOTNETS = {Proc. ACM Workshop on Hot Topics in Networks (HotNets)}}
+% 
+% @string{SIGMETRICS = {SIGMETRICS}}
+% 
+% @string{PODC = {PODC}}
+% @string{POPL = {ACM Symposium on Principles of Programming Languages (POPL)}}
+% 
+% @string{OSR = {ACM SIGOPS Operating Systems Review}}
+% 
+% @string{NSS = {The Conference on Network and System Security (NSS)}}
+% 
+% @string{IMC = {IMC}}
+% 
+% @string{ICALP = {ICALP}}
+% 
+% @string{ECCC = {Electronic Colloquium on Computational Complexity
+%     ({ECCC})}}
+% 
+% @string{NDSS = {Network and Distributed System Security Symposium (NDSS)}}
+% 
+% @string{ASIACCS = "ACM Symposium on Information, Computer and
+%     Communications Security (ASIACCS)"}
+% 
+% @string{VLDB = {International Conference on Very Large Databases
+%     (VLDB)}}
+% 
+% @string{VEE = {ACM Virtual Execution Environments (VEE)}}
+% 
+% @string{JSAC = {IEEE JSAC}}
+% 
+% @string{DSN = {Dependable Systems and Networks (DSN)}}
+% 
+% @string{ITCS = {Innovations in Theoretical Computer Science (ITCS)}}
+% 
+% @string{SRUTI = {Proc.\ \smcpit{USENIX} Steps to Reducing Unwanted Traffic on the
+% Internet Workshop (\smcpit{SRUTI})}}
+% 
+% @string{INFOCOM = {IEEE International Conference on Computer
+%     Communications (INFOCOM)}}
+% 
+% @string{SIGCSE = {Proc. ACM SIGCSE}}
+% 
+% @string{MIDDLEWARE = {Proc.\ \smcpit{ACM/IFIP/USENIX} International Middleware
+%     Conference}}
+% 
+% @comment string{ACNS = {Intl. Conference on Applied Cryptography
+%     and Network Security (ACNS)}}
+% 
+% @string{ACNS = {ACNS}}
+% 
+% @string{IPTPS = {Proc.\ International Workshop on Peer-to-Peer Systems
+%     (IPTPS)}}
+% 
+% @string{FDNA = "Proc.\ \smcpit{SIGCOMM} Workshop on Future Directions in Network Architecture"}
+% 
+% @string{SECURITY = {USENIX Security}}
+% 
+% @string{MOBICOM = {MOBICOM}}
+% 
+% @string{CCR = {ACM CCR}}
+% @string{WPES = {Proc.\ Workshop on Privacy in the Electronic Society
+%     (\smcpit{WPES})}}
+% 
+% @string{WWW = {Proc.\ International World Wide Web Conference
+%     (\smcpit{WWW})}}
+% 
+% @string{OAKLAND = {IEEE Symposium on Security and Privacy}}
+% 
+% @string{EC = {Proc.\ \smcpit{ACM} Conference on Electronic Commerce
+%     (\smcpit{ec})}}
+% 
+% @string{HPCA = "IEEE International Symposium on High Performance
+%     Computer Architecture (HPCA)"}
+% 
+% @string{TON = {\smcpit{ACM/IEEE} Transactions on Networking}}
+% @string{TOCS = {ACM Transactions on Computer Systems (TOCS)}}
+% @string{TOIT = {ACM Transactions on Internet Technology (TOIT)}}
+% 
+% @string{SPW = {Proc.\ International Workshop on Security Protocols}}
+% 
+% @string{SODA = {SODA}}
+% 
+% @string{SRDS = {Proc.\ \smcpit{IEEE} Symposium on Reliable Distributed
+%     Systems}}
+% 
+% @string{RSA = {RSA Conference}}
+% 
+% @string{MOBIHELD = {Proc.\ {ACM SIGCOMM} Workshop on Networking, Systems,
+%     Applications on Mobile Handhelds}}
+% 
+% @string{STC = {ACM Workshop on Scalable Trusted Computing}}
+% 
+% @string{HOTCLOUD = {{USENIX} HotCloud Workshop}}
+% @string{HOTDEP = "USENIX Workshop on Hot Topics in System Dependability (HotDep)"}
+% 
+% @string{JACM = {Journal of the ACM}}
+% @STRING{JAL = {Journal of Algorithms}}
+% @string{CC = {Computational Complexity}}
+% @string{SIJC = {SIAM Journal on Computing}}
+% @string{JCSS = {Journal of Computer and System Sciences}}
+% @string{JC = {Journal of Cryptology}}
+% @string{jcrypt = {Journal of Cryptology}}
+% @string{DCC = {Designs, Codes and Cryptography}}
+% 
+% @string{TRUST = {TRUST}}
+% 
+% @string{Lecnotes = {Lecture Notes in Computer Science Vol. }}
+% @string{LNCS = {Lecture Notes in Computer Science Vol. }}
+% @string{lncs={Lecture Notes in Computer Science}}
+% @string{Proc = {Proc.\ }}
+% @string{POT = {Proc.\ }}
+% @string{iandcomp = {Information and Computation}}
+% @string{mathcomp = {Mathematics of Computation}}
+% @string{wep2ps = {Workshop on Economics of Peer-to-Peer Systems}}
+% @string{USITS = {Proc.\ \smcpit{USENIX} Symposium on Internet
+%     Technologies and Systems (\smcpit{USITS})}}
+% 
+% @string{ASIAN = {Proc. Asian Computing Science Conference}}
+% 
+% @string{ADSN = {Proc. 4th International Workshop on Assurance in
+%     Distributed Systems and Networks}}
+% 
+% @string{IETF = "{Internet Engineering Task Force}"}
+% 
+% @string{ICICS = {Intl. Conf. on Information and
+% 	Communications Security}}
+% 
+% @string{ICDCS = {Intl. Conf. on Dist. Computing Sys. (ICDCS)}}
+% 
+% @comment string{ICDE = {IEEE Conf. on Data Engineering (ICDE)}}
+% @string{ICDE = {ICDE}}
+% 
+% @comment string{SENSYS = {ACM Conf. on Embedded Networked Sensor Systems (Sensys)}}
+% @string{SENSYS = {ACM Sensys}}
+% 
+% @string{PET = "Privacy Enhancing Technologies Symposium"}
+% 
+% @string{FSE = {ACM Symposium on the Foundations of Software Engineering (FSE)}}
+% 
+% @string{CCSW = {ACM Workshop on Cloud Computing Security}}
+% 
+% @string{SOFSEM = {Conference on Current Trends in Theory and Practice of Computer Science}}
+% 
+% @string{EPRINT = {Cryptology ePrint Archive, Report\ }}
+% 
+% @string{PPoPP = {ACM Symposium on Principles and Practice of Parallel
+%     Programming (PPoPP)}}
+% 
+% @string{CHES = {Proc. International Conference on Cryptographic Hardware and Embedded Systems (CHES)}}
+% 
+% @string{MICRO = {IEEE/ACM International Symposium on Microarchitecture (MICRO)}}
+% @string{HOTI = {IEEE Symposium on High-Performance Interconnects (HOTI)}}
+% 
+% @string{DT = {IEEE Design and Test of Computers (DT)}} 
+% @string{TODAES = {ACM Trans. on Design Automation of Electronic Systems (TODAES)}}
+% @string{TIFS = {IEEE Trans. on Information Forensics and Security (TIFS)}}
+% @string{TCAD  = {IEEE Trans. on Computer-Aided Design of Integrated Circuits and Systems (TCAD)}}
+% @string{JSSC = {IEEE Journal of Solid-State Circuits (JSSC)}}
+% 
+% @string{ISSCC = {IEEE International Solid-State Circuits Conference (ISSCC)}}
+% @string{VLSI = {IEEE Symposium on VLSI Circuits (VLSI)}}
+% 
+% @string{ECTC = {IEEE Electronic Components and Technology Conference (ECTC)}}
+% 
+% @string{TRETS = {ACM Trans. Reconfigurable Technology and Systems (TRETS)}}
+% @string{ARC = {Symp. Applied Reconfigurable Computing (ARC)}}
+% @string{PKC = {Intl. Conf. on Theory and Practice of Public Key Cryptography (PKC)}}
+% @string{ISCA = {Intl. Symp. Computer Architecture (ISCA)}}
+% @string{CSICS = {IEEE Compound Semiconductor IC Symposium (CSICS)}}
+% @string(TOPLAS="ACM Transactions on Programming Languages and Systems (TOPLAS)")
+% @string{ASPLOS = {ACM International Conference on Architectural
+%     Support for Programming Languages and Operating Systems (ASPLOS)}}
+% @string{OOPSLA = {ACM SIGPLAN International Conference on
+%     Object-Oriented Programming, Systems, Languages, and Applications}}
+% 
+% @string{SDCS = {International Workshop on Security in Distributed Computing Systems ({SDCS})}}
+% 
+% @string{CAV = {Computer Aided Verification (CAV)}}
+
+% conferences
+@string{focs="Proc. FOCS)"}
+@string{stoc="Proc. STOC"}
+@string{soda="Proc. SODA"}
+@string{sosp="Proc. SOSP"}
+@string{osdi="Proc. OSDI"}
+@string{sigcomm="Proc. SIGCOMM"}
+@string{nsdi="Proc. NSDI"}
+@string{podc="Proc. PODC"}
+@string{disc="Proc. DISC"}
+@string{vldb="Proc. VLDB"}
+@string{sigmod="Proc. SIGMOD"}
+@string{security="Proc. Security"}
+@string{ccs="Proc. CCS"}
+@string{oakland="Proc. S\&P"}
+@string{isca="Proc. ISCA"}
+@string{pldi="Proc. PLDI"}
+@string{popl="Proc. POPL"}
+@string{asplos="Proc. ASPLOS"}
+@string{spaa="Proc. SPAA"}
+@string{oopsla="Proc. OOPSLA"}
+@string{eurosys="Proc. EuroSys"}
+@string{ppopp="Proc. PPoPP"}
+@string{atc="Proc. USENIX ATC"}
+@string{ols="Proc. OLS"}
+@string{cidr="Proc. CIDR"}
+@string{icde="Proc. ICDE"}
+@string{fast="Proc. FAST"}
+@string{sc="Proc. SC"}
+@string{ecoop="Proc. ECOOP"}
+@string{socc="Proc. SoCC"}
+@string{infocom="Proc. INFOCOM"}
+@string{hpdc="Proc. HPDC"}
+@string{dsn="Proc. DSN"}
+@string{icdcs="Proc. ICDCS"}
+@string{pact="Proc. PACT"}
+@string{icse="Proc. ICSE"}
+@string{cav="Proc. CAV"}
+@string{aaai="Proc. AAAI"}
+@string{tacas="Proc. TACAS"}
+@string{ndss="Proc. NDSS"}
+@string{ipdps="Proc. IPDPS"}
+@string{vee="Proc. VEE"}
+@string{security="Proc. USENIX Security"}
+@string{dac="Proc. DAC"}
+@string{crypto="Proc. Crypto"}
+
+% workshops
+@string{hotos="Proc. HotOS"}
+@string{hotdep="Proc. HotDep"}
+@string{hotcloud="Proc. HotCloud"}
+@string{ccsw="Proc. CCSW"}
+@string{iptps="Proc. IPTPS"}
+@string{transact="Proc. TRANSACT"}
+@string{hpts="International Workshop on High Performance Transaction Systems (HPTS)"}
+@string{icdew="Proc. ICDEW"}
+
+% journals
+@string{tocs="TOCS"}
+@string{sijc="SIJC"}
+@string{pvldb="PVLDB"}
+@string{tods="TODS"}
+@string{toplas="TOPLAS"}
+@string{csur="CSUR"}
+@string{osr="OSR"}
+@string{ccr="CCR"}
+@string{sicomp="SICOMP"} 
+@string{vldbj="VLDBJ"}
+@string{tkde="TKDE"}
+@string{tse="TSE"}
+@string{tc="TC"}
+@string{dc="DC"}
+@string{jpdc="JPDC"}
+
+% newsletter
+@string{sigact="SIGACT"}
+@string{cacm="CACM"}
+@string{jacm="JACM"}

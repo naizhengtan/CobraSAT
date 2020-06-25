@@ -1,0 +1,51 @@
+\documentclass[acmsmall, 10pt]{acmart}
+
+
+% remove annoying ACM info
+%\usepackage{xpatch}
+%\makeatletter
+%\xpatchcmd{\ps@firstpagestyle}{Manuscript submitted to ACM}{}{\typeout{First patch succeeded}}{\typeout{first patch failed}}
+%\xpatchcmd{\ps@standardpagestyle}{Manuscript submitted to ACM}{}{\typeout{Second patch succeeded}}{\typeout{Second patch failed}}\@ACM@manuscriptfalse% Also in titlepage
+%\makeatother
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\setcopyright{none}
+\pagestyle{plain} % remove running headers
+
+\input{preamble}
+
+%\frenchspacing
+
+\begin{document}
+
+\title{
+  XXX
+}
+\author{Michael Yang}
+\author{Cheng Tan}
+
+
+%\vspace{.5pc}\\
+%\fontsize{9.5}{11}\selectfont NYU Department of Computer Science, Courant Institute
+
+\date{}
+
+\input{abs}
+\maketitle
+
+\input{intro}
+\input{encodings}
+\input{eval}
+\input{conc}
+
+\frenchspacing
+
+\begin{flushleft}
+\footnotesize
+\setlength{\parskip}{0pt}
+\setlength{\itemsep}{0pt}
+\bibliographystyle{abbrv}
+\bibliography{conferences-long-with-abbr,bibs}
+\end{flushleft}
+
+\end{document}
