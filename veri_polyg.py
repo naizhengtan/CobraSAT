@@ -1,4 +1,5 @@
 from z3 import *
+import monosat
 import sys
 import time
 import math
@@ -6,6 +7,8 @@ import math
 # from multiprocessing import Pool, cpu_count
 
 # ====== various encodings =====
+
+# TODO: abstract into a higher level interface
 
 vars = []
 vars_aux = []
@@ -122,10 +125,13 @@ def lessunr(ya, yb, u, n):
 def encode_polyg_topo(n, edges, constraints, s):
     for begin in range(n):
        for end in range(n):
-           s.add(Implies(var([begin, end]), \
-                         ULT(aux_binary(begin), aux_binary(end))))
+           if begin != end:
+               # could we use total linear order instead?
+               s.add(Implies(var([begin, end]), \
+                             ULT(aux_binary(begin), aux_binary(end))))
 
 def encode_polyg_transitive(n, edges, constraints, s):
+    # Buggy! There's a bug in z3 with transitive closures
     # https://theory.stanford.edu/~nikolaj/programmingz3.html#sec-transitive-closure
     # Irreflexive transitive closure => no cycles
     # A = DeclareSort()
@@ -137,8 +143,8 @@ def encode_polyg_transitive(n, edges, constraints, s):
     for begin in range(n):
         s.add(Not(TC_R(begin, begin))) # irreflexive
         for end in range(n):
-            s.add(Implies(var([begin, end]), R(begin, end)))
-            # if begin != end:
+            s.add(Implies(var([begin, end]), R(begin, end))) # inclusive of all (see 3.1)
+            # if begin != end: # this doesnt work; why?
             #     s.add(Implies(var([begin, end]), R(begin, end)))
 
 # probably >= topo time since we aren't able to precompute leaves
@@ -166,23 +172,6 @@ def encode_polyg_tree(n, edges, constraints, s):
         s.add(Implies(is_leaf, aux_binary(begin) == 0))
         s.add(at_least_one)
 
-# def encode_polyg_axiom(n, edges, constraints, s):
-#     # Do we really need a WR distinction here? Let's try without
-#     WR = Function('WR', Ints, Ints, Bools) # WR relation
-#     # CO = Function('CO', Ints, Ints, Bools) # Commit Order
-
-#    for begin in range(n):
-#         s.add(Not(TC_R(begin, begin))) # irreflexive
-#         for end in range(n):
-#             # constraint encodings already account for
-#             s.add(Implies(var([begin, end]), WR(begin, end)))
-#             # s.add(Implies(WR(begin, end), CO(begin, end)))
-
-#             # from topo (total ordering):
-#             s.add(Implies(var([begin, end]), \
-#                             ULT(aux_binary(begin), aux_binary(end))))
-
-#             s.add()
 
 def encode_polyg_be19(n, edges, constraints, s):
     # require WR edges
@@ -207,19 +196,20 @@ def encode_polyg_be19(n, edges, constraints, s):
     # careful: can't actually use topo here cause that does not imply total order of CO i think
     # since the topo => acyclic, and we no longer have the constraints!
     # could we use integer theories somehow?
+    # what about the total linear order?
     for begin in range(n):
         for end in range(n):
             if begin != end:
-                s.add(Xor(var([begin, end]), var([end, begin])))
+                s.add(Xor(var([begin, end]), var([end, begin]))) # strcit total order
                 for middle in range(n):
                     if begin != middle and end != middle:
                         s.add(Implies(And(var([begin, middle]), var([middle, end])), var([begin, end])))
 
-def encode_polyg_be19_rel(n, edges, constraints, s):
-    # require WR edges
+def encode_polyg_betop(n, edges, constraints, s):
+    CO = LinearOrder(IntSort(), 0)
+
     for edge in edges:
-        s.add(var(edge))
-    CO = Function('WR', Ints, Ints, Bools) # Commit Order
+        s.add(CO(edge[0], edge[1]))
 
     # encode the polyg constraints in a different way here
     # each constraint option (i, k), (k, j) is a i wr(x) j, k writes x relation
@@ -229,13 +219,39 @@ def encode_polyg_be19_rel(n, edges, constraints, s):
         t3 = constraint[0][0]
 
         assert t2 == constraint[1][0]
-        s.add(Implies(var([t2, t3]), var([t2, t1])))
+        s.add(Implies(CO(t2, t3), CO(t2, t1)))
 
     for begin in range(n):
         for end in range(n):
             if begin != end:
-                s.add(Implies(CO(
+                s.add(Xor(CO(begin, end), CO(end, begin))) # strcit total order
 
+
+def polyg_monosat(n, edges, constraints):
+    monosat.Monosat().newSolver()
+    graph = monosat.Graph()
+
+    for i in range(n):
+        graph.addNode()
+
+    for edge in edges:
+        edge = graph.addEdge(*edge)
+        monosat.Assert(edge)
+
+    for constraint in constraints:
+        e1 = graph.addEdge(*(constraint[0]))
+        e2 = graph.addEdge(*(constraint[1]))
+        monosat.Assert(monosat.And(monosat.Or(e1, e2), \
+                                   monosat.Or(monosat.Not(e1), \
+                                              monosat.Not(e2))))
+
+    monosat.Assert(graph.acyclic())
+    result = monosat.Solve()
+
+    if result:
+        print("sat")
+    else:
+        print("unsat")
 
 # ====== load file =====
 
@@ -289,6 +305,11 @@ def main(encoding, poly_f, output_file):
     print("#edges=%d" % len(edges))
     print("#constraints=%d" % len(constraints))
 
+
+    if "monosat" == encoding:
+        polyg_monosat(n, edges, constraints)
+        exit()
+
     #set_option("smt.timeout", 120000) # 120s timeout
 
     t1 = time.time()
@@ -327,7 +348,7 @@ def main(encoding, poly_f, output_file):
         # don't need polygraph sat here.
         encode_polyg_be19(n, edges, constraints, s)
     elif "betop" == encoding:
-        generate_vars(n)
+        generate_vars_binary(n)
         encode_polyg_betop(n, edges, constraints, s)
     else:
         print("ERROR: unknown encoding [%s]. Stop." % encoding)
@@ -350,7 +371,7 @@ def main(encoding, poly_f, output_file):
         t3 = time.time()
         print("solve constraints: %.fms" % ((t3-t2)*1000))
         # for debugging:
-        # print(s.model())
+        print(s.model())
 
 
 def usage_exit():
