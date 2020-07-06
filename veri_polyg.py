@@ -86,6 +86,7 @@ def encode_polyg_unary(n, edges, constraints, s):
         for end in range(n):
             # s.add(Implies(var([begin, end]), less(begin, end, n)))
             s.add(Implies(var([begin, end]), less(begin, end, n)))
+            # [cheng: shouldn't the below clause outside the loop of "end"?]
             s.add(unary(begin, n))
         print('\r{:.2f}%'.format(begin / n), end='')
     print('\n')
@@ -125,8 +126,11 @@ def lessunr(ya, yb, u, n):
 def encode_polyg_topo(n, edges, constraints, s):
     for begin in range(n):
        for end in range(n):
+           # [cheng: what if begin == end? shouldn't we add clauses saying no self-loop?]
            if begin != end:
                # could we use total linear order instead?
+               # [cheng: I think we should add another encoding with
+               # "aux_binary" to be Integer (instead of BitVec) in Z3]
                s.add(Implies(var([begin, end]), \
                              ULT(aux_binary(begin), aux_binary(end))))
 
@@ -167,6 +171,8 @@ def encode_polyg_tree(n, edges, constraints, s):
             s.add(Implies(var([begin, end]), UGT(aux_binary(begin), aux_binary(end))))
 
             # at least one is k - 1
+            # [cheng: if we use integer instead of BitVec, we can use "max()"
+            # here which might have better performance]
             at_least_one = Or(at_least_one, Implies(var([begin, end]), aux_binary(end) == (aux_binary(begin) - 1)))
 
         s.add(Implies(is_leaf, aux_binary(begin) == 0))
@@ -199,6 +205,7 @@ def encode_polyg_be19(n, edges, constraints, s):
     # what about the total linear order?
     for begin in range(n):
         for end in range(n):
+            # [cheng: what if when begin == end?]
             if begin != end:
                 s.add(Xor(var([begin, end]), var([end, begin]))) # strcit total order
                 for middle in range(n):
@@ -223,6 +230,7 @@ def encode_polyg_betop(n, edges, constraints, s):
 
     for begin in range(n):
         for end in range(n):
+            # [cheng: what about begin == end?]
             if begin != end:
                 s.add(Xor(CO(begin, end), CO(end, begin))) # strcit total order
 
@@ -326,6 +334,9 @@ def main(encoding, poly_f, output_file):
     elif "tc3" == encoding:
         generate_vars(n)
         polygraph_sat(n, edges, constraints, s)
+        # [cheng: it seems tc3 doesn't require aux vars, no?
+        #  if so, we should separate generating "vars" and "vars_aux"
+        #  and only invoke "vars" generation here]
         encode_polyg_tc3(n, edges, constraints, s)
     elif "unr" == encoding:
         generate_vars(n)
