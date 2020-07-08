@@ -163,17 +163,18 @@ def encode_polyg_tree(n, edges, constraints, s):
         s.add(ULE(aux_binary(begin), n - 1))
 
         for end in range(n):
-            # If there is an edge from begin to end, it is not a leaf
-            is_leaf = And(Not(var([begin, end])), is_leaf)
-            # s.add(Implies(var([begin, end]), UGT(aux_binary(begin), 0)))
+            if begin != end:
+                # If there is an edge from begin to end, it is not a leaf
+                is_leaf = And(Not(var([begin, end])), is_leaf)
+                # s.add(Implies(var([begin, end]), UGT(aux_binary(begin), 0)))
 
-            # dist_to_leaf(begin) > dist_to_leaf(end)
-            s.add(Implies(var([begin, end]), UGT(aux_binary(begin), aux_binary(end))))
+                # dist_to_leaf(begin) > dist_to_leaf(end)
+                s.add(Implies(var([begin, end]), UGT(aux_binary(begin), aux_binary(end))))
 
-            # at least one is k - 1
-            # [cheng: if we use integer instead of BitVec, we can use "max()"
-            # here which might have better performance]
-            at_least_one = Or(at_least_one, Implies(var([begin, end]), aux_binary(end) == (aux_binary(begin) - 1)))
+                # at least one is k - 1
+                # [cheng: if we use integer instead of BitVec, we can use "max()"
+                # here which might have better performance]
+                at_least_one = Or(at_least_one, Implies(var([begin, end]), aux_binary(end) == (aux_binary(begin) - 1)))
 
         s.add(Implies(is_leaf, aux_binary(begin) == 0))
         s.add(at_least_one)
@@ -213,10 +214,11 @@ def encode_polyg_be19(n, edges, constraints, s):
                         s.add(Implies(And(var([begin, middle]), var([middle, end])), var([begin, end])))
 
 def encode_polyg_betop(n, edges, constraints, s):
-    CO = LinearOrder(IntSort(), 0)
+    # CO = LinearOrder(IntSort(), 0)
 
     for edge in edges:
-        s.add(CO(edge[0], edge[1]))
+        s.add(var(edge))
+        # s.add(CO(edge[0], edge[1]))
 
     # encode the polyg constraints in a different way here
     # each constraint option (i, k), (k, j) is a i wr(x) j, k writes x relation
@@ -225,14 +227,25 @@ def encode_polyg_betop(n, edges, constraints, s):
         t2 = constraint[0][1]
         t3 = constraint[0][0]
 
-        assert t2 == constraint[1][0]
-        s.add(Implies(CO(t2, t3), CO(t2, t1)))
+        # assert t2 == constraint[1][0]
+        s.add(Implies(var([t2, t3]), var([t2, t1])))
+        # s.add(Implies(CO(t2, t3), CO(t2, t1)))
+
+    s.add(Distinct(*vars_aux))
 
     for begin in range(n):
         for end in range(n):
-            # [cheng: what about begin == end?]
+            s.add(Not(var([begin, begin])))
             if begin != end:
-                s.add(Xor(CO(begin, end), CO(end, begin))) # strcit total order
+                s.add(Xor(var([begin, end]), var([end, begin]))) # Strict total order. Adding this requires any transaction to be ordered.
+                s.add(Implies(var([begin, end]), aux_binary(begin) < aux_binary(end)))
+
+    # for begin in range(n):
+    #     for end in range(n):
+    #         # [cheng: what about begin == end?]
+    #         s.add(Not(CO(begin, begin)))
+    #         if begin != end:
+    #             s.add(Xor(CO(begin, end), CO(end, begin))) # strict total order
 
 
 def polyg_monosat(n, edges, constraints):
