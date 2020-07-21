@@ -1,6 +1,6 @@
 from veri_polyg import load_polyg
 import time
-from Encoding import TC1
+from ser_encodings.tc1 import TC1
 
 class Stopwatch:
     def __init__(self):
@@ -12,38 +12,43 @@ class Stopwatch:
         return diff
 
 def timing(start, end):
-    return (end - start) * 1000
+    return (end - start)
 
 
-def run_encoding(Encoding, polyg_filename)
+def run_encoding(Encoding, polyg_filename):
+    print('polygraph: ' + polyg_filename)
     print('loading polygraph...')
     n, edges, constraints = load_polyg(polyg_filename)
 
-    print('initialize encoding...')
+    print('\ninitialize encoding...')
     start = time.time()
 
     enc = Encoding(n)
     init_done = time.time()
-    print("init: {:.f}sec".format(timing(start, init_done)))
+    print("init: {:.6f}sec".format(timing(start, init_done)))
 
-    print('building encoding...')
+    print('\nbuilding encoding...')
     enc.encode(edges, constraints)
     encode_done = time.time()
-    print("encode: {:.f}sec".format(timing(init_done, encode_done)))
+    print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
 
-    print('building encoding...')
+    print('\nbuilding encoding...')
     results = enc.solve()
     solve_done = time.time()
-    print("solve: {:.f}sec".format(timing(encode_done, solve_done)))
+    print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
 
-    return results,
+
+    print(results)
+    print("\nsat? " + str(results))
+
+    return results
 
 
 def main():
     encodings = [TC1]
 
     for Encoding in encodings:
-        run_encoding(Encoding, 'polygraphs/unit_test/1cons.polyg')
+        run_encoding(Encoding, '../polygraphs/unit_test/cycle.polyg')
 
 
 if __name__ == "__main__":

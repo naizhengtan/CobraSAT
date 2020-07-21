@@ -9,6 +9,12 @@ def label_aux(edge):
 def generate_z3_vars(n):
     # bools[begin][end]
     bools = [[Bool(label([begin, end])) for end in range(n)] for begin in range(n)]
-    bools_aux = [[Bool(label_aux([begin, end])) for end in range(n)] for begin in range(n)]
+    return bools
 
-    return bools, bools_aux
+def generate_z3_aux_vars(n):
+    bools_aux = [[Bool(label_aux([begin, end])) for end in range(n)] for begin in range(n)]
+    return bools_aux
+
+def make_var_of_edge(variables):
+    return lambda edge: variables[edge[0]][edge[1]]
+
