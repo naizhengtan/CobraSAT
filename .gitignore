@@ -3,3 +3,4 @@ minisat-os-x
 .ipynb_checkpoints
 .venv
 monosat
+z3
