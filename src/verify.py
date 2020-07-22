@@ -1,6 +1,7 @@
-from veri_polyg import load_polyg
+import argparse
 import time
-from ser_encodings.tc1 import TC1
+from veri_polyg import load_polyg
+from ser_encodings import ENCODING_CLASSES
 
 class Stopwatch:
     def __init__(self):
@@ -15,7 +16,7 @@ def timing(start, end):
     return (end - start)
 
 
-def run_encoding(Encoding, polyg_filename):
+def run_encoding(Encoding, polyg_filename, output_filename=None):
     print('encoding: ' + Encoding.__name__)
     print('description: ' + Encoding.description)
     print('polygraph: ' + polyg_filename)
@@ -34,22 +35,37 @@ def run_encoding(Encoding, polyg_filename):
     encode_done = time.time()
     print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
 
-    print('\nbuilding encoding...')
-    results = enc.solve()
-    solve_done = time.time()
-    print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
+    results = None
+    if not output_filename:
+        print('\nsolving encoding...')
+        results = enc.solve()
+        solve_done = time.time()
+        print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
 
-    print("\nsat? " + str(results))
+        print("\nsat? " + str(results))
+    else:
+        print('\nwriting encoding to file...')
+        # TODO: write to file (and time it)
 
     return results
 
 
 def main():
-    encodings = [TC1]
+    parser = argparse.ArgumentParser()
+    encoding_choices = {}
 
-    for Encoding in encodings:
-        run_encoding(Encoding, '../polygraphs/unit_test/cycle.polyg')
+    for cl in ENCODING_CLASSES:
+        if not cl in encoding_choices:
+            encoding_choices[cl.name] = cl
+        else:
+            raise Exception('duplicate encoding names')
 
+    parser.add_argument('encoding', help='encoding to use', choices=encoding_choices)
+    parser.add_argument('polygraph', help='polygraph file')
+    parser.add_argument('-o', '--output', help='save encoding to file')
 
-if __name__ == "__main__":
+    args = parser.parse_args()
+    run_encoding(encoding_choices[args.encoding], args.polygraph, args.output)
+
+if __name__ == '__main__':
     main()
