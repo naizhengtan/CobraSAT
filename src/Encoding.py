@@ -35,15 +35,3 @@ class Encoding(ABC):
     def print_progresss(self):
         pass
 
-
-def TC3(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2):
-    description = 'tc3 encoding from Janota17, similar to tc1 but without auxilary variables'
-
-    def __init__(self, total_nodes):
-        self.total_nodes = total_nodes
-        self.adjacency = generate_z3_vars(total_nodes)
-        self.solver = Solver()
-
-    def encode(self, edges, constraints):
-        pass
-

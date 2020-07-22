@@ -1,12 +1,11 @@
 from z3 import *
-
 from encoding import Encoding
-from mixins import MixinEncodePolygraphZ3, MixinWriteSMT2
+from mixins import MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress
 from variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
 
 
-class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2):
-    description = 'tc1 encoding from Janota17'
+class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
+    description = 'tc1 encoding from Janota17 in Z3'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -33,8 +32,7 @@ class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2):
                     connecting = And(aux_of([begin, mid]),  # 2) transitivity
                                      aux_of([mid, end]))
                     s.add(Implies(connecting, aux_of([begin, end])))
-
-            print('\rprogress: {:.2f}%'.format(begin * 100 / (n - 1)), end='')
+            self.print_progress(begin, n)
         print()
 
     def solve(self):

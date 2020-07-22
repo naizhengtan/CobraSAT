@@ -17,3 +17,7 @@ class MixinWriteSMT2:
         filename = file_firstname + self.filetype()
         with open(filename, 'w') as file:
             file.write(self.solver.to_smt2())
+
+class MixinPrintProgress:
+    def print_progress(self, iteration, n):
+        print('\rprogress: {:.2f}%'.format(iteration* 100 / (n - 1)), end='')
