@@ -1,4 +1,5 @@
 import argparse
+from argparse import RawDescriptionHelpFormatter
 import time
 from polygraph import load_polyg
 from ser_encodings import ENCODING_CLASSES
@@ -49,9 +50,15 @@ def run_encoding(Encoding, polyg_filename, output_filename=None):
 
     return results
 
+def encoding_help(encodings):
+    acc = []
+    for cl in encodings:
+        acc += [' ‣ ', cl.name, ': ', cl.description, '\n']
+    return ''.join(acc)
 
 def main():
-    parser = argparse.ArgumentParser()
+    helptext = encoding_help(ENCODING_CLASSES)
+    parser = argparse.ArgumentParser(description=helptext, formatter_class=RawDescriptionHelpFormatter)
     encoding_choices = {}
 
     for cl in ENCODING_CLASSES:
@@ -60,12 +67,18 @@ def main():
         else:
             raise Exception('duplicate encoding names')
 
-    parser.add_argument('encoding', help='encoding to use', choices=encoding_choices)
+    parser.add_argument('encoding', choices=encoding_choices, help='encoding to solve with')
     parser.add_argument('polygraph', help='polygraph file')
     parser.add_argument('-o', '--output', help='save encoding to file')
 
     args = parser.parse_args()
-    run_encoding(encoding_choices[args.encoding], args.polygraph, args.output)
+    encoding = encoding_choices[args.encoding]
+    if args.output and not encoding.filetype:
+        print('error: that encoding cannot output to file')
+        exit(1)
+    else:
+        run_encoding(encoding, args.polygraph, args.output)
+        exit(0)
 
 if __name__ == '__main__':
     main()
