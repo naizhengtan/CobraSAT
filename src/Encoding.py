@@ -29,11 +29,6 @@ class Encoding(ABC):
 
     @property
     @abstractmethod
-    def name(self):
-        pass
-
-    @property
-    @abstractmethod
     def description(self):
         pass
 
@@ -42,7 +37,6 @@ class Encoding(ABC):
 
 
 def TC3(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2):
-    name = 'tc3'
     description = 'tc3 encoding from Janota17, similar to tc1 but without auxilary variables'
 
     def __init__(self, total_nodes):

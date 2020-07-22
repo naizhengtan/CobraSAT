@@ -16,6 +16,8 @@ def timing(start, end):
 
 
 def run_encoding(Encoding, polyg_filename):
+    print('encoding: ' + Encoding.__name__)
+    print('description: ' + Encoding.description)
     print('polygraph: ' + polyg_filename)
     print('loading polygraph...')
     n, edges, constraints = load_polyg(polyg_filename)
@@ -37,8 +39,6 @@ def run_encoding(Encoding, polyg_filename):
     solve_done = time.time()
     print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
 
-
-    print(results)
     print("\nsat? " + str(results))
 
     return results
