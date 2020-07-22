@@ -37,6 +37,8 @@ class TopoBitVec(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintPro
                 # edge from begin to end => ordering(begin) < ordering(end)
                 less_than = ULT(ordering_of(begin), ordering_of(end))
                 s.add(Implies(var_of([begin, end]), less_than))
+            self.print_progress(begin, n)
+        print()
 
     def solve(self):
         return super().solve()
@@ -65,3 +67,6 @@ class TopoInt(TopoBitVec):
             for end in range(n):
                 less_than = ordering_of(begin) < ordering_of(end)
                 s.add(Implies(var_of([begin, end]), less_than))
+            self.print_progress(begin, n)
+        print()
+

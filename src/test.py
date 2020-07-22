@@ -1,8 +1,11 @@
 import unittest
 
-from ser_encodings import ENCODING_CLASSES
-from ser_encodings import TC1, TC3, TC
-from ser_encodings import TopoBitVec, TopoInt
+from ser_encodings import (
+    ENCODING_CLASSES,
+    TC1, TC3, TC,
+    TopoBitVec, TopoInt,
+    Axiomatic
+)
 
 from verify import run_encoding
 from config import DATA_PATH
@@ -40,6 +43,9 @@ class TestEncodings(unittest.TestCase):
 
     def test_topo_int(self):
         self.assert_ser(TopoInt)
+
+    def test_axiomatic(self):
+        self.assert_ser(Axiomatic)
     # prefer to test individually instead to avoid errors
     # def test_ser_sat(self):
     #     for Encoding in ENCODING_CLASSES:
