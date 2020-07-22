@@ -55,7 +55,7 @@ def main():
     encoding_choices = {}
 
     for cl in ENCODING_CLASSES:
-        if not cl in encoding_choices:
+        if not cl.name in encoding_choices:
             encoding_choices[cl.name] = cl
         else:
             raise Exception('duplicate encoding names')

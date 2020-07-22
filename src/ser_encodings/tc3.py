@@ -4,7 +4,7 @@ from mixins import MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress
 from variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
 
 
-def TC3(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
+class TC3(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc3'
     description = 'tc3 encoding from Janota17 in Z3, similar to tc1 but without auxilary variables'
 
