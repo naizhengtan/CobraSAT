@@ -1,6 +1,6 @@
 import argparse
 import time
-from veri_polyg import load_polyg
+from polygraph import load_polyg
 from ser_encodings import ENCODING_CLASSES
 
 class Stopwatch:
