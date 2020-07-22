@@ -4,7 +4,8 @@ from ser_encodings import (
     ENCODING_CLASSES,
     TC1, TC3, TC,
     TopoBitVec, TopoInt,
-    Axiomatic
+    Axiomatic,
+    Mono
 )
 
 from verify import run_encoding
@@ -46,6 +47,9 @@ class TestEncodings(unittest.TestCase):
 
     def test_axiomatic(self):
         self.assert_ser(Axiomatic)
+
+    def test_mono(self):
+        self.assert_ser(Mono)
     # prefer to test individually instead to avoid errors
     # def test_ser_sat(self):
     #     for Encoding in ENCODING_CLASSES:
