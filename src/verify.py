@@ -36,19 +36,19 @@ def run_encoding(Encoding, polyg_filename, output_filename=None):
     encode_done = time.time()
     print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
 
-    results = None
+    result = None
     if not output_filename:
         print('\nsolving encoding...')
-        results = enc.solve()
+        result = enc.solve()
         solve_done = time.time()
         print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
 
-        print("\nsat? " + str(results))
+        print("\nsat? " + str(result))
     else:
         print('\nwriting encoding to file...')
         # TODO: write to file (and time it)
 
-    return results
+    return (result, enc)
 
 def encoding_help(encodings):
     acc = []

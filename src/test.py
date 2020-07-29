@@ -5,7 +5,8 @@ from ser_encodings import (
     TC1, TC3, TC,
     TopoBitVec, TopoInt,
     Axiomatic,
-    Mono
+    Mono,
+    TreeBV
 )
 
 from verify import run_encoding
@@ -20,11 +21,16 @@ class TestEncodings(unittest.TestCase):
 
     def assert_sat(self, Encoding):
         for polyg in type(self).sat_polyg:
-            self.assertTrue(run_encoding(Encoding, polyg))
+            result, enc = run_encoding(Encoding, polyg)
+            self.assertTrue(result)
+            if enc.name == 'tree-bv':
+                print(enc.solver.model())
 
     def assert_unsat(self, Encoding):
         for polyg in type(self).unsat_polyg:
-            self.assertFalse(run_encoding(Encoding, polyg))
+            print(polyg)
+            result, enc = run_encoding(Encoding, polyg)
+            self.assertFalse(result)
 
     def assert_ser(self, Encoding):
         self.assert_sat(Encoding)
@@ -50,6 +56,9 @@ class TestEncodings(unittest.TestCase):
 
     def test_mono(self):
         self.assert_ser(Mono)
+
+    def test_tree_bitvec(self):
+        self.assert_ser(TreeBV)
     # prefer to test individually instead to avoid errors
     # def test_ser_sat(self):
     #     for Encoding in ENCODING_CLASSES:

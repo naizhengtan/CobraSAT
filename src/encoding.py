@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class Encoding(ABC):
     @abstractmethod
     def __init__(self, total_nodes):
@@ -39,4 +38,3 @@ class Encoding(ABC):
 
     def print_progresss(self):
         pass
-

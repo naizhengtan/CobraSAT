@@ -4,5 +4,8 @@ from ser_encodings.tc import TC
 from ser_encodings.topo import TopoBitVec, TopoInt
 from ser_encodings.axiom import Axiomatic
 from ser_encodings.mono import Mono
+from ser_encodings.tree import TreeBV
 
-ENCODING_CLASSES = [TC1, TC3, TC, TopoBitVec, TopoInt, Axiomatic, Mono]
+ENCODING_CLASSES = [TC1, TC3, TC, 
+                    TopoBitVec, TopoInt, 
+                    Axiomatic, Mono, TreeBV]
