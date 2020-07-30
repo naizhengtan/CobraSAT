@@ -37,28 +37,29 @@ class Atom(Formula):
         return self
     
     def __repr__(self):
-        return name
+        return self.name
 
 TRUE = Atom('TRUE')
 FALSE = Atom('FALSE')
 
 def unpack_ands(ands):
-    if isinstance(ands.left, And) and isinstance(ands.right, Or):
+    if isinstance(ands.left, And):
         nested_ands = ands.left
-        inner_ors = ands.right
-        return nested_ands, inner_ors
-    elif isinstance(ands.left, Or) and isinstance(ands.right, And):
-        inner_ors = ands.left
+        inner_clauses = ands.right
+        return nested_ands, inner_clauses
+    elif isinstance(ands.right, And):
+        inner_clauses = ands.left
         nested_ands = ands.right
-        return nested_ands, inner_ors
+        return nested_ands, inner_clauses
     else: 
-        raise Exception('not in cnf')
+        return ands.left, ands.right
 
 def clauses(cnf):
     if isinstance(cnf, And):
-        nested_ands, inner_ors = unpack_ands(cnf)
-        yield inner_ors
-        yield walk_cnf(nested_ands)
+        nested_ands, inner_clauses = unpack_ands(cnf)
+        yield inner_clauses
+        for clause in clauses(nested_ands):
+            yield clause
     else:
         yield cnf
 
@@ -76,7 +77,7 @@ class Or(BinaryOperator):
         for clause_from_left_cnf in clauses(left_cnf):
             for clause_from_right_cnf in clauses(right_cnf):
                 ands = And(ands, Or(clause_from_left_cnf, clause_from_right_cnf))
-        return ands.to_cnf()
+        return ands
 
 class Not(UnaryOperator):
     def to_cnf(self):
