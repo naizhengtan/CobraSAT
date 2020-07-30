@@ -42,6 +42,14 @@ class Atom(Formula):
 TRUE = Atom('TRUE')
 FALSE = Atom('FALSE')
 
+class Expandable(ABC):
+    @abstractmethod
+    def expand(self):
+        pass
+
+    def to_cnf(self):
+        self.expand().to_cnf()
+
 def unpack_ands(ands):
     if isinstance(ands.left, And):
         nested_ands = ands.left
@@ -69,18 +77,22 @@ class And(BinaryOperator):
 
 class Or(BinaryOperator):
     def to_cnf(self):
-        # distribute ANDs
         left_cnf = self.left.to_cnf()
         right_cnf = self.right.to_cnf()
-        
-        ands = TRUE
+
+        acc = None
         for clause_from_left_cnf in clauses(left_cnf):
             for clause_from_right_cnf in clauses(right_cnf):
-                ands = And(ands, Or(clause_from_left_cnf, clause_from_right_cnf))
-        return ands
+                if acc is None:
+                    acc = Or(clause_from_left_cnf, clause_from_right_cnf)
+                else:
+                    acc = And(acc, Or(clause_from_left_cnf, clause_from_right_cnf))
+        return acc 
 
 class Not(UnaryOperator):
     def to_cnf(self):
+        if isinstance(self.inner, Atom):
+            return self
         if isinstance(self.inner, Not):
             return self.inner.to_cnf()
         elif isinstance(self.inner, And):
@@ -91,22 +103,24 @@ class Not(UnaryOperator):
             left = self.inner.left
             right = self.inner.right
             return And(Not(left), Not(right)).to_cnf()
+        elif isinstance(self.inner, Expandable):
+            return Not(self.inner.expand()).to_cnf()
         else:
-            return Not(self.inner.to_cnf())
+            raise Exception('unexpected inner!', self.inner)
 
-class Implies(BinaryOperator):
-    def to_cnf(self):
-        return Or(Not(self.left), self.right).to_cnf()
+class Implies(BinaryOperator, Expandable):
+    def expand(self):
+        return Or(Not(self.left), self.right)
 
-class Iff(BinaryOperator):
-    def to_cnf(self):
+class Iff(BinaryOperator, Expandable):
+    def expand(self):
         left = self.left
         right = self.right
-        return Or(And(left, right), And(Not(left), Not(right))).to_cnf()
+        return Or(And(left, right), And(Not(left), Not(right)))
 
-class Paren(UnaryOperator):
-    def to_cnf(self):
-        return self.inner.to_cnf()
+class Paren(UnaryOperator, Expandable):
+    def expand(self):
+        return self.inner
     
     def __repr__(self):
         return f'({repr(self.inner)})'
