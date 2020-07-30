@@ -22,10 +22,6 @@ class CNF:
     def and_cnf(self, right_cnf):
         # preserve variable names
         for name, num in right_cnf.variables.items():
-            
-    @classmethod
-    def VAR(cls, name, positive=True):
-        return (positive, name)
 
     @classmethod 
     def init_from_var(cls, name):
