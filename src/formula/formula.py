@@ -50,23 +50,11 @@ class Expandable(ABC):
     def to_cnf(self):
         self.expand().to_cnf()
 
-def unpack_ands(ands):
-    if isinstance(ands.left, And):
-        nested_ands = ands.left
-        inner_clauses = ands.right
-        return nested_ands, inner_clauses
-    elif isinstance(ands.right, And):
-        inner_clauses = ands.left
-        nested_ands = ands.right
-        return nested_ands, inner_clauses
-    else: 
-        return ands.left, ands.right
-
 def clauses(cnf):
     if isinstance(cnf, And):
-        nested_ands, inner_clauses = unpack_ands(cnf)
-        yield inner_clauses
-        for clause in clauses(nested_ands):
+        for clause in clauses(cnf.left):
+            yield clause
+        for clause in clauses(cnf.right):
             yield clause
     else:
         yield cnf
@@ -81,6 +69,7 @@ class Or(BinaryOperator):
         right_cnf = self.right.to_cnf()
 
         acc = None
+        # distribution of <CNF> OR <CNF>
         for clause_from_left_cnf in clauses(left_cnf):
             for clause_from_right_cnf in clauses(right_cnf):
                 if acc is None:
@@ -98,10 +87,12 @@ class Not(UnaryOperator):
         elif isinstance(self.inner, And):
             left = self.inner.left
             right = self.inner.right
+            # DeMorgan's law for AND
             return Or(Not(left), Not(right)).to_cnf()
         elif isinstance(self.inner, Or):
             left = self.inner.left
             right = self.inner.right
+            # DeMorgan's law for OR
             return And(Not(left), Not(right)).to_cnf()
         elif isinstance(self.inner, Expandable):
             return Not(self.inner.expand()).to_cnf()
