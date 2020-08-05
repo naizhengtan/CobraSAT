@@ -4,7 +4,15 @@ class Formula(ABC):
     @abstractmethod
     def to_cnf(self):
         pass
-    
+
+    @abstractmethod
+    def tseitin(self):
+        pass
+
+    @abstractmethod
+    def iterate(self):
+        pass
+
     @abstractmethod
     def __repr__(self):
         pass
@@ -15,29 +23,49 @@ class Formula(ABC):
 class UnaryOperator(Formula):
     def __init__(self, inner):
         self.inner = inner
-    
+
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.inner)})'
+
+    def iterate(self):
+        yield self
+        for formula in self.inner.iterate():
+            yield formula
 
 class BinaryOperator(Formula):
     def __init__(self, left, right):
         self.left = left
         self.right = right
-    
+
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
 
+    def iterate(self):
+        yield self
+
+        for formula in self.left.iterate():
+            yield formula
+
+        for formula in self.right.iterate():
+            yield formula
+
 class Atom(Formula):
     def __init__(self, name):
         self.name = name
-    
+
     def to_cnf(self):
         return self
-    
+
+    def tseitin(self):
+        return self
+
     def __repr__(self):
         return self.name
+
+    def iterate(self):
+        yield self
 
 TRUE = Atom('TRUE')
 FALSE = Atom('FALSE')
@@ -76,7 +104,7 @@ class Or(BinaryOperator):
                     acc = Or(clause_from_left_cnf, clause_from_right_cnf)
                 else:
                     acc = And(acc, Or(clause_from_left_cnf, clause_from_right_cnf))
-        return acc 
+        return acc
 
 class Not(UnaryOperator):
     def to_cnf(self):
@@ -112,6 +140,14 @@ class Iff(BinaryOperator, Expandable):
 class Paren(UnaryOperator, Expandable):
     def expand(self):
         return self.inner
-    
+
     def __repr__(self):
         return f'({repr(self.inner)})'
+
+def to_cnf(formula):
+    return formula.to_cnf()
+
+def to_tseitin_cnf(formula):
+
+
+
