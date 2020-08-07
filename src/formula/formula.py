@@ -10,10 +10,6 @@ class Formula(ABC):
         pass
 
     @abstractmethod
-    def iterate(self):
-        pass
-
-    @abstractmethod
     def __repr__(self):
         pass
 
@@ -28,11 +24,6 @@ class UnaryOperator(Formula):
         op = type(self).__name__
         return f'({op} {repr(self.inner)})'
 
-    def iterate(self):
-        yield self
-        for formula in self.inner.iterate():
-            yield formula
-
 class BinaryOperator(Formula):
     def __init__(self, left, right):
         self.left = left
@@ -41,15 +32,6 @@ class BinaryOperator(Formula):
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
-
-    def iterate(self):
-        yield self
-
-        for formula in self.left.iterate():
-            yield formula
-
-        for formula in self.right.iterate():
-            yield formula
 
 class Atom(Formula):
     def __init__(self, name):
@@ -63,9 +45,6 @@ class Atom(Formula):
 
     def __repr__(self):
         return self.name
-
-    def iterate(self):
-        yield self
 
 TRUE = Atom('TRUE')
 FALSE = Atom('FALSE')
@@ -146,8 +125,5 @@ class Paren(UnaryOperator, Expandable):
 
 def to_cnf(formula):
     return formula.to_cnf()
-
-def to_tseitin_cnf(formula):
-
 
 
