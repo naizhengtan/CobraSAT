@@ -37,7 +37,7 @@ class UnaryOperator(Formula, ABC):
         return cnf, out, increment_var(out_var)
 
     @abstractmethod
-    def tseitin_subexpr(self, inner_var, out_var)
+    def tseitin_subexpr(self, inner_var, out_var):
         pass
 
 class BinaryOperator(Formula, ABC):
@@ -49,6 +49,7 @@ class BinaryOperator(Formula, ABC):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
 
+class BinaryTseitin:
     def tseitin(self, next_var):
         l_expr, l_var, next_var = self.left.tseitin(next_var)
         r_expr, r_var, out_var = self.right.tseitin(next_var)
@@ -98,7 +99,7 @@ def clauses(cnf):
     else:
         yield cnf
 
-class And(BinaryOperator):
+class And(BinaryTseitin, BinaryOperator):
     def to_cnf(self):
         return And(self.left.to_cnf(), self.right.to_cnf())
 
@@ -111,7 +112,7 @@ class And(BinaryOperator):
         subexpr = And(clause_1, And(clause_2, clause_3))
         return subexpr
 
-class Or(BinaryOperator):
+class Or(BinaryTseitin, BinaryOperator):
     def to_cnf(self):
         left_cnf = self.left.to_cnf()
         right_cnf = self.right.to_cnf()
@@ -162,11 +163,11 @@ class Not(UnaryOperator):
 
         return subexpr
 
-class Implies(BinaryOperator, Expandable):
+class Implies(Expandable, BinaryOperator):
     def expand(self):
         return Or(Not(self.left), self.right)
 
-class Iff(BinaryOperator, Expandable):
+class Iff(Expandable, BinaryOperator):
     def expand(self):
         left = self.left
         right = self.right
