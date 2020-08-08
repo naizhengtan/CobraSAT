@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
 
+def increment_var(current_var):
+    # ts-<number>
+    return f'ts-{(int(current_var[3:]) + 1)}'
+
 class Formula(ABC):
     @abstractmethod
     def to_cnf(self):
         pass
 
     @abstractmethod
-    def tseitin(self):
+    def tseitin(self, next_var):
         pass
 
     @abstractmethod
@@ -16,7 +20,7 @@ class Formula(ABC):
     def __str__(self):
         return repr(self)
 
-class UnaryOperator(Formula):
+class UnaryOperator(Formula, ABC):
     def __init__(self, inner):
         self.inner = inner
 
@@ -24,7 +28,19 @@ class UnaryOperator(Formula):
         op = type(self).__name__
         return f'({op} {repr(self.inner)})'
 
-class BinaryOperator(Formula):
+    def tseitin(self, next_var):
+        inner_expr, inner_var, out_var = self.inner.tseitin(next_var)
+
+        subexpr = tseitin_subexpr(inner_var, out_var)
+        cnf = And(inner_expr, subexpr)
+
+        return cnf, out, increment_var(out_var)
+
+    @abstractmethod
+    def tseitin_subexpr(self, inner_var, out_var)
+        pass
+
+class BinaryOperator(Formula, ABC):
     def __init__(self, left, right):
         self.left = left
         self.right = right
@@ -33,6 +49,19 @@ class BinaryOperator(Formula):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
 
+    def tseitin(self, next_var):
+        l_expr, l_var, next_var = self.left.tseitin(next_var)
+        r_expr, r_var, out_var = self.right.tseitin(next_var)
+
+        subexpr = tseitin_subexpr(l_var, r_var, out_var)
+        cnf = And(l_expr, And(r_expr, subexpr))
+
+        return cnf, out_var, increment_var(out_var)
+
+    @abstractmethod
+    def tseitin_subexpr(self, left_var, right_var, out_var):
+        pass
+
 class Atom(Formula):
     def __init__(self, name):
         self.name = name
@@ -40,8 +69,8 @@ class Atom(Formula):
     def to_cnf(self):
         return self
 
-    def tseitin(self):
-        return self
+    def tseitin(self, next_var):
+        return self, self.name, next_var
 
     def __repr__(self):
         return self.name
@@ -55,7 +84,10 @@ class Expandable(ABC):
         pass
 
     def to_cnf(self):
-        self.expand().to_cnf()
+        return self.expand().to_cnf()
+
+    def tseitin(self):
+        return self.expand().tseitin()
 
 def clauses(cnf):
     if isinstance(cnf, And):
@@ -69,6 +101,15 @@ def clauses(cnf):
 class And(BinaryOperator):
     def to_cnf(self):
         return And(self.left.to_cnf(), self.right.to_cnf())
+
+    def tseitin_subexpr(self, l_var, r_var, out_var):
+        # even AND needs a subexpr, in order to allow for chaining!
+        clause_1 = Or(Not(l_var), Or(Not(r_var), out_var))
+        clause_2 = Or(l_var, Not(out_var))
+        clause_3 = Or(r_var, Not(out_var))
+
+        subexpr = And(clause_1, And(clause_2, clause_3))
+        return subexpr
 
 class Or(BinaryOperator):
     def to_cnf(self):
@@ -84,6 +125,14 @@ class Or(BinaryOperator):
                 else:
                     acc = And(acc, Or(clause_from_left_cnf, clause_from_right_cnf))
         return acc
+
+    def tseitin_subexpr(self, l_var, r_var, out_var):
+        clause_1 = Or(l_var, Or(r_var, Not(out_var)))
+        clause_2 = Or(Not(l_var), out_var)
+        clause_3 = Or(Not(r_var), out_var)
+
+        subexpr = And(clause_1, And(clause_2, clause_3))
+        return subexpr
 
 class Not(UnaryOperator):
     def to_cnf(self):
@@ -117,6 +166,8 @@ class Iff(BinaryOperator, Expandable):
         return Or(And(left, right), And(Not(left), Not(right)))
 
 class Paren(UnaryOperator, Expandable):
+    # i dont think this actually does anything :-/
+    # this would only do something if it evaluated in a bottom up manner
     def expand(self):
         return self.inner
 
