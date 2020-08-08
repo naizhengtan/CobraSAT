@@ -172,15 +172,6 @@ class Iff(BinaryOperator, Expandable):
         right = self.right
         return Or(And(left, right), And(Not(left), Not(right)))
 
-class Paren(UnaryOperator, Expandable):
-    # i dont think this actually does anything :-/
-    # this would only do something if it evaluated in a bottom up manner
-    def expand(self):
-        return self.inner
-
-    def __repr__(self):
-        return f'({repr(self.inner)})'
-
 def to_cnf(formula):
     return formula.to_cnf()
 
