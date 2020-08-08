@@ -4,6 +4,7 @@ def increment_var(current_var):
     # ts-<number>
     return f'ts-{(int(current_var[3:]) + 1)}'
 
+# consider registering instead of using inheritance?
 class Formula(ABC):
     @abstractmethod
     def to_cnf(self):
@@ -176,4 +177,5 @@ class Iff(Expandable, BinaryOperator):
 def to_cnf(formula):
     return formula.to_cnf()
 
-
+def make_atoms(names):
+    return (*[Atom(name) for name in names.split()],) # unpack into a tuple!
