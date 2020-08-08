@@ -155,6 +155,13 @@ class Not(UnaryOperator):
         else:
             raise Exception('unexpected inner!', self.inner)
 
+    def tseitin_subexpr(self, inner_var, out_var):
+        clause_1 = Or(Not(inner_var), Not(out_var))
+        clause_2 = Or(inner_var, out_var)
+        subexpr = And(clause_1, clause_2)
+
+        return subexpr
+
 class Implies(BinaryOperator, Expandable):
     def expand(self):
         return Or(Not(self.left), self.right)
