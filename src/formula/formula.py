@@ -50,6 +50,9 @@ class BinaryOperator(Formula, ABC):
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
+    
+    def children(self):
+        return [self.left, self.right]
 
 class BinaryTseitin:
     def tseitin(self, next_var):
@@ -182,8 +185,12 @@ def make_atoms(names):
     return (*[Atom(name) for name in names.split()],) # unpack into a tuple!
 
 def is_cnf_formula(formula):
+    # TODO: there is a bug in the old code. what about the case when x AND (y OR z)?
+    # x is not an OR! but this is valid CNF
+    # double check that this fix is correct
     if isinstance(formula, And):
-        return is_cnf_formula_BinaryOp(formula, (And, Or))
+        return is_cnf_formula_BinaryOp(formula, (And, Or, Not, Atom))
+        # return is_cnf_formula_BinaryOp(formula, (And, Or))
     elif isinstance(formula, Or):
         return is_cnf_formula_BinaryOp(formula, (Or, Not, Atom))
     elif isinstance(formula, Not):
@@ -204,4 +211,3 @@ def is_cnf_formula_BinaryOp(formula, valid_child_instances):
         is_right_cnf = is_cnf_formula(formula.right)
         
     return is_left_cnf and is_right_cnf
-    
