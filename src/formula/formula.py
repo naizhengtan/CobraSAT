@@ -21,6 +21,10 @@ class Formula(ABC):
 
     def __str__(self):
         return repr(self)
+    
+    def accept(self, visitor):
+        class_name = type(self).__name__
+        return getattr(visitor, 'visit_' + class_name)(self)
 
 class UnaryOperator(Formula, ABC):
     def __init__(self, inner):
