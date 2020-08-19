@@ -99,6 +99,9 @@ class Expandable(ABC):
     def tseitin(self):
         return self.expand().tseitin()
 
+    def accept(self, visitor):
+        return self.expand().accept(visitor)
+
 def clauses(cnf_formula):
     if isinstance(cnf_formula, And):
         for clause in clauses(cnf_formula.left):

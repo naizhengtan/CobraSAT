@@ -1,5 +1,5 @@
 from formula import *
-from cnf import literal
+from cnf import literal, add_clause, and_cnf
 
 # And -> cnf
 # Or -> clause
@@ -34,3 +34,41 @@ def cnf_formula_to_cnf(cnf_formula):
         return literal(inner.name, False)
     elif isinstance(cnf_formula, Atom):
         return literal(cnf_formula.name, True)
+
+# Formula -> CNF
+# CNF = nil | (clause, CNF)
+class ToCNF:
+    def visit_Atom(self, atom):
+        return CNF([Clause([Literal(atom.name)])])
+    
+    def visit_Not(self, not_formula):
+        inner = not_formula.inner
+        if isinstance(inner, (Atom, Not)):
+            return inner.accept(self)
+        elif isinstance(inner, And):
+            left, right = inner.children()
+            return Or(Not(left), Not(right)).accept(self)
+        elif isinstance(inner, Or):
+            left, right = inner.children()
+            return And(Not(left), Not(right)).accept(self)
+        elif isinstance(inner, Expandable):
+            return Not(inner.expand()).accept(self)
+        else:
+            raise Exception("not a valid inner formula type")
+    
+    def visit_Or(self, or_formula):
+        left_cnf = or_formula.left.accept(self)
+        right_cnf = or_formula.right.accept(self)
+
+        cnf = CNF()
+        for l_clause in left_cnf:
+            for r_clause in right_cnf:
+                l_clause.or_clause(r_clause)
+            cnf.and_cnf(l_clause)
+        return cnf
+
+    def visit_And(self, and_formula):
+        left_cnf = and_formula.left.accept(self)
+        right_cnf = and_formula.right.accept(self)
+        return left_cnf.and_cnf(right_cnf)
+
