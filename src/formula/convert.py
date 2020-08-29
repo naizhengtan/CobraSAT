@@ -1,5 +1,5 @@
-from formula import *
-from cnf import literal, add_clause, and_cnf
+from formula.formula import *
+from formula.cnf import *
 
 # And -> cnf
 # Or -> clause
@@ -51,8 +51,8 @@ class ToCNF:
         elif isinstance(inner, Or):
             left, right = inner.children()
             return And(Not(left), Not(right)).accept(self)
-        elif isinstance(inner, Expandable):
-            return Not(inner.expand()).accept(self)
+        # elif isinstance(inner, Expandable):
+        #     return Not(inner.expand()).accept(self)
         else:
             raise Exception("not a valid inner formula type")
     
@@ -71,4 +71,3 @@ class ToCNF:
         left_cnf = and_formula.left.accept(self)
         right_cnf = and_formula.right.accept(self)
         return left_cnf.and_cnf(right_cnf)
-

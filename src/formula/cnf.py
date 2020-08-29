@@ -33,7 +33,7 @@ def simplify_clause(clause):
         simplified = []
 
         # rules 1 and 2
-        if is_true_literal(literal) and !(name in seen and seen[name] != is_positive):
+        if is_true_literal(literal) and not (name in seen and seen[name] != is_positive):
             # rule 3
             if not is_false_literal(literal): 
                 simplified.append(literal(name, is_positive))
@@ -84,7 +84,7 @@ class CNF:
         self.clauses = clauses
     
     def and_cnf(self, cnf):
-        self.clauses.append(clause)
+        self.clauses.append(cnf)
         return self
     
     def __iter__(self):
