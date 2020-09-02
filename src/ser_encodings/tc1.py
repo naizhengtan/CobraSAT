@@ -39,6 +39,7 @@ class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     def solve(self):
         return super().solve()
 
+# consider also: z3 with sat + tseitin tactics
 class TC1Dimacs(Encoding):
     name = 'tc1-dimacs'
     description = 'tc1 encoding in dimacs'

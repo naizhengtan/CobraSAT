@@ -44,7 +44,7 @@ class ToCNF:
     def visit_Not(self, not_formula):
         inner = not_formula.inner
         if isinstance(inner, Not):
-            return visit_Atom(inner)
+            return inner.accept(self)
         elif isinstance(inner, Atom):
             return CNF([Clause([literal(inner.name, False)])])
         elif isinstance(inner, And):
@@ -62,8 +62,7 @@ class ToCNF:
         left_cnf = or_formula.left.accept(self)
         right_cnf = or_formula.right.accept(self)
 
-        # cnf = CNF() # totally hangs when empty list is default param??
-        cnf = CNF([])
+        cnf = CNF()
         for l_clause in left_cnf:
             for r_clause in right_cnf:
                 distr_clause = or_clauses(l_clause, r_clause)

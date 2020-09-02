@@ -88,10 +88,14 @@ def to_dimacs(cnf):
 
     return '\n'.join(lines)
 
-class CNF():
-    # def __init__(self, clauses):
-    def __init__(self, clauses=[]):
-        # assert not clauses or isinstance(clauses[0], Clause)
+class CNF:
+    def __init__(self, clauses=None):
+        # cnf = CNF() # totally hangs when empty list is default param??
+        # turns out that python will use the same list every time...
+        # classic pass by reference as value
+        if clauses is None:
+            clauses = []
+        assert not clauses or isinstance(clauses[0], Clause)
         self.clauses = clauses
 
     def and_cnf(self, cnf):
@@ -109,7 +113,7 @@ class CNF():
     def __repr__(self):
         return ' AND '.join([str(clause) for clause in self])
 
-class Clause():
+class Clause:
     def __init__(self, literals=[]):
         self.literals = literals
     
