@@ -31,13 +31,8 @@ def simplify_clause(clause):
     seen = {} # let seen[Var] = True means positive literal seen
     simplified = Clause()
     for literal in clause:
+        literal = normalize_literal(literal)
         name, is_positive = literal
-        is_tf = name == 'TRUE' or name == 'FALSE'
-
-        # Normalize True and False
-        if is_tf and not is_positive:
-            literal = ('TRUE' if name == 'FALSE' else 'FALSE', True)
-            name, is_positive = literal
 
         if name in seen:
             if is_positive != seen[name]: # both Var, !Var are in clause => clause is always true
@@ -56,9 +51,10 @@ def FALSE():
 
 def normalize_literal(literal):
     name, is_positive = literal
-    is_const = name is 'TRUE' or name is 'FALSE'
-    if is_const and not is_positive:
-        return (name, not is_positive)
+    is_tf = name == 'TRUE' or name == 'FALSE'
+
+    if is_tf and not is_positive:
+        return ('TRUE' if name == 'FALSE' else 'FALSE', not is_positive)
     else:
         return literal
 
