@@ -39,18 +39,18 @@ class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     def solve(self):
         return super().solve()
 
-# consider also: z3 with sat + tseitin tactics
-class TC1Dimacs(Encoding):
-    name = 'tc1-dimacs'
-    description = 'tc1 encoding in dimacs'
+# # consider also: z3 with sat + tseitin tactics
+# class TC1Dimacs(Encoding):
+#     name = 'tc1-dimacs'
+#     description = 'tc1 encoding in dimacs'
 
-    def __init__(self, total_nodes):
-        pass
+#     def __init__(self, total_nodes):
+#         pass
 
-    def encode(self, edges, constraints):
-        # should write to some dimacs folder to solve from
-        pass
+#     def encode(self, edges, constraints):
+#         # should write to some dimacs folder to solve from
+#         pass
     
-    def solve(self):
-        # implement in child classes with different solvers?
-        pass
+#     def solve(self):
+#         # implement in child classes with different solvers?
+#         pass
