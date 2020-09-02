@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
 
-def increment_var(current_var):
-    # ts-<number>
-    return f'ts-{(int(current_var[3:]) + 1)}'
 
 # TODO: consider registering instead of using inheritance?
 class Formula(ABC):
