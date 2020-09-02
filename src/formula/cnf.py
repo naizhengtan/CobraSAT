@@ -23,6 +23,7 @@ def simplify_cnf(cnf):
 
 def simplify_clause(clause):
     # simple rules:
+    # Normalize !TRUE and !FALSE to FALSE and TRUE
     # 1. if TRUE in clause then remove clause
     # 2. if clause has both Var and !Var, remove clause
     # 3. remove FALSE from clauses
@@ -43,11 +44,19 @@ def simplify_clause(clause):
      
     return simplified
 
-def is_true_literal(literal):
-    return literal == ('TRUE', True) or literal == ('FALSE', False)
+def TRUE():
+    return ('TRUE', True)
 
-def is_false_literal(literal):
-    return literal == ('FALSE', True) or literal == ('TRUE', False)
+def FALSE():
+    return ('FALSE', False)
+
+def normalize_literal(literal):
+    name, is_positive = literal
+    is_const = name is 'TRUE' or name is 'FALSE'
+    if is_const and not is_positive:
+        return (name, not is_positive)
+    else:
+        return literal
 
 def make_clause_lines(cnf):
     seen = {}
@@ -79,56 +88,49 @@ def to_dimacs(cnf):
 
     return '\n'.join(lines)
 
-class CNF:
+class CNF():
+    # def __init__(self, clauses):
     def __init__(self, clauses=[]):
+        # assert not clauses or isinstance(clauses[0], Clause)
         self.clauses = clauses
-    
+
     def and_cnf(self, cnf):
-        self.clauses.append(cnf)
+        assert isinstance(cnf, CNF)
+        self.clauses.extend(cnf.clauses)
         return self
     
-    def __iter__(self):
-        return self.clauses
+    def add_clause(self, clause):
+        assert isinstance(clause, Clause)
+        self.clauses.append(clause)
     
-class Clause:
+    def __iter__(self):
+        return iter(self.clauses)
+    
+    def __repr__(self):
+        return ' AND '.join([str(clause) for clause in self])
+
+class Clause():
     def __init__(self, literals=[]):
         self.literals = literals
     
-    def add_literal(self, literal):
-        self.literals.append(literal)
-
     def or_clause(self, clause):
+        assert isinstance(clause, Clause)
         self.literals.extend(clause.literals)
         return self
     
     def __iter__(self):
-        return self.literals
+        return iter(self.literals)
     
-class Literal:
-    def __init__(self, name, positive=True):
-        self.name = name
-        self.positive = positive
-    
-    def __eq__(self, literal):
-        same_name = self.name == literal.name
+    def __repr__(self):
+        return f'({" OR ".join([literal_to_str(literal) for literal in self])})'
 
-def negated(literal):
-    return Literal(literal.name, not literal.positive)
+def and_cnfs(cnf_1, cnf_2):
+    return CNF(cnf_1.clauses + cnf_2.clauses)
 
-# class TrueAtom(Literal):
-#     def __init__(self):
-#         super().__init__('TRUE', True)
-    
-#     def __eq__(self, literal):
-#         is_true = literal.name == 'TRUE' and literal.positive
-#         is_neg_false = negated(literal) == FalseAtom()
-#         return is_true or is_neg_false
+def or_clauses(clause_1, clause_2):
+    return Clause(clause_1.literals + clause_2.literals)
 
-# class FalseAtom(Literal):
-#     def __init__(self):
-#         super().__init__('FALSE', True)
-
-#     def __eq__(self, literal):
-#         is_false = literal.name == 'FALSE' and literal.positive
-#         is_neg_true = negated(literal) == TrueAtom()
-#         return is_false or is_neg_true
+def literal_to_str(literal):
+    name, is_positive = literal
+    sign = '' if is_positive else '~'
+    return f'{sign}{name}'

@@ -39,20 +39,22 @@ def cnf_formula_to_cnf(cnf_formula):
 # CNF = nil | (clause, CNF)
 class ToCNF:
     def visit_Atom(self, atom):
-        return CNF([Clause([Literal(atom.name)])])
+        return CNF([Clause([literal(atom.name)])])
     
     def visit_Not(self, not_formula):
         inner = not_formula.inner
-        if isinstance(inner, (Atom, Not)):
-            return inner.accept(self)
+        if isinstance(inner, Not):
+            return visit_Atom(inner)
+        elif isinstance(inner, Atom):
+            return CNF([Clause([literal(inner.name, False)])])
         elif isinstance(inner, And):
             left, right = inner.children()
             return Or(Not(left), Not(right)).accept(self)
         elif isinstance(inner, Or):
             left, right = inner.children()
             return And(Not(left), Not(right)).accept(self)
-        # elif isinstance(inner, Expandable):
-        #     return Not(inner.expand()).accept(self)
+        elif isinstance(inner, Expandable):
+            return Not(inner.expand()).accept(self)
         else:
             raise Exception("not a valid inner formula type")
     
@@ -60,14 +62,16 @@ class ToCNF:
         left_cnf = or_formula.left.accept(self)
         right_cnf = or_formula.right.accept(self)
 
-        cnf = CNF()
+        # cnf = CNF() # totally hangs when empty list is default param??
+        cnf = CNF([])
         for l_clause in left_cnf:
             for r_clause in right_cnf:
-                l_clause.or_clause(r_clause)
-            cnf.and_cnf(l_clause)
+                distr_clause = or_clauses(l_clause, r_clause)
+                cnf.add_clause(distr_clause)
         return cnf
 
     def visit_And(self, and_formula):
         left_cnf = and_formula.left.accept(self)
         right_cnf = and_formula.right.accept(self)
-        return left_cnf.and_cnf(right_cnf)
+        return and_cnfs(left_cnf, right_cnf)
+        # return left_cnf.and_cnf(right_cnf)
