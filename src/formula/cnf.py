@@ -12,7 +12,7 @@ def literal(name, is_positive=True):
     return (name, is_positive)
 
 def simplify_cnf(cnf):
-    simplified = []
+    simplified = CNF()
 
     for clause in cnf:
         simplified_clause = simplify_clause(clause)
@@ -28,19 +28,22 @@ def simplify_clause(clause):
     # 2. if clause has both Var and !Var, remove clause
     # 3. remove FALSE from clauses
     
-    seen = {} # let seen[Var] = True mean positive literal seen
+    seen = {} # let seen[Var] = True means positive literal seen
     for literal in clause:
+        simplified = Clause()
         name, is_positive = literal
-        simplified = []
+        is_tf = name == 'TRUE' or name == 'FALSE'
 
-        # rules 1 and 2
-        if is_true_literal(literal) and not (name in seen and seen[name] != is_positive):
-            # rule 3
-            if not is_false_literal(literal): 
-                simplified.append(literal(name, is_positive))
-                seen[name] = is_positive
+        # Normalize True and False
+        if is_tf and not is_positive:
+            literal = ('TRUE' if name == 'FALSE' else 'FALSE', True)
+
+        if name in seen:
+            if is_positive != seen[name]: # both Var, !Var are in clause => clause is always true
+                return []
         else:
-            return []
+            simplified.add_literal(literal)
+            seen[name] = is_positive
      
     return simplified
 
@@ -88,6 +91,7 @@ def to_dimacs(cnf):
 
     return '\n'.join(lines)
 
+# TODO: should probably just class CNF(list)
 class CNF:
     def __init__(self, clauses=None):
         # cnf = CNF() # totally hangs when empty list is default param??
@@ -124,6 +128,9 @@ class Clause:
         self.literals.extend(clause.literals)
         return self
     
+    def add_literal(self, literal):
+        self.literals.append(literal)
+
     def __iter__(self):
         return iter(self.literals)
     
