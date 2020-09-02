@@ -138,7 +138,7 @@ class Clause:
         return f'({" OR ".join([literal_to_str(literal) for literal in self])})'
     
     def __bool__(self):
-        return self.literals
+        return bool(self.literals)
 
 def and_cnfs(cnf_1, cnf_2):
     return CNF(cnf_1.clauses + cnf_2.clauses)
