@@ -29,14 +29,15 @@ def simplify_clause(clause):
     # 3. remove FALSE from clauses
     
     seen = {} # let seen[Var] = True means positive literal seen
+    simplified = Clause()
     for literal in clause:
-        simplified = Clause()
         name, is_positive = literal
         is_tf = name == 'TRUE' or name == 'FALSE'
 
         # Normalize True and False
         if is_tf and not is_positive:
             literal = ('TRUE' if name == 'FALSE' else 'FALSE', True)
+            name, is_positive = literal
 
         if name in seen:
             if is_positive != seen[name]: # both Var, !Var are in clause => clause is always true
