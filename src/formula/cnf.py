@@ -17,7 +17,7 @@ def simplify_cnf(cnf):
     for clause in cnf:
         simplified_clause = simplify_clause(clause)
         if simplified_clause:
-            simplified.append(simplified_clause)
+            simplified.add_clause(simplified_clause)
     
     return simplified
 
@@ -114,7 +114,9 @@ class CNF:
         return ' AND '.join([str(clause) for clause in self])
 
 class Clause:
-    def __init__(self, literals=[]):
+    def __init__(self, literals=None):
+        if literals is None:
+            literals = []
         self.literals = literals
     
     def or_clause(self, clause):
@@ -127,6 +129,9 @@ class Clause:
     
     def __repr__(self):
         return f'({" OR ".join([literal_to_str(literal) for literal in self])})'
+    
+    def __bool__(self):
+        return self.literals
 
 def and_cnfs(cnf_1, cnf_2):
     return CNF(cnf_1.clauses + cnf_2.clauses)
