@@ -61,8 +61,8 @@ class ToTseitinCNF:
         return sub_cnf.and_cnf(left_cnf).and_cnf(right_cnf), out_var
 
     def visit_Atom(self, atom):
-        cnf = CNF([Clause([literal(atom.name)])])
-        return (cnf, atom.name)
+        # empty cnf since this is a terminal node
+        return (CNF(), atom.name)
 
     def visit_Not(self, not_formula):
         inner_cnf, in_var = not_formula.inner.accept(self)
@@ -95,9 +95,9 @@ class ToTseitinCNF:
         clause_3 = Clause([literal(left_var, False), literal(right_var, False), literal(out_var)])
         
         return CNF([clause_1, clause_2, clause_3])
-    
+
 def to_cnf(formula):
     return formula.accept(ToCNF())
 
 def to_tseitin_cnf(formula):
-    return formula.accept(ToTseitinCNF())[1]
+    return formula.accept(ToTseitinCNF())[0]
