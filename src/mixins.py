@@ -1,5 +1,8 @@
 from z3 import *
+from formula.cnf import *
 
+# TODO: starting to think that helper functions might've been
+# a better choice than mixins for some of these (e.g. print_progress)
 class MixinEncodePolygraphZ3:
     def encode_polygraph(self, var_of, edges, constraints):
         s = self.solver
@@ -21,3 +24,11 @@ class MixinWriteSMT2:
 class MixinPrintProgress:
     def print_progress(self, iteration, n):
         print('\rprogress: {:.2f}%'.format(iteration* 100 / (n - 1)), end='')
+
+class MixinEncodePolygraphCNF:
+    def encode_polygraph(self, var_of, edges, constraints):
+        cnf = CNF()
+        for edge in edges:
+            variable = var_of(edge)
+            cnf.add_clause(Clause([literal(variable)]))
+        
