@@ -2,6 +2,7 @@ from encoding import Encoding
 from formula.dimacs import to_dimacs
 from formula.formula import *
 from mixins import (
+    MixinEncodePolygraphCNF,
     MixinPrintProgress
 )
 from variables import (
@@ -9,9 +10,10 @@ from variables import (
 )
 import math
 
-class BinaryLabeling(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
-    name = 'binary-labeling'
+class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
+    name = 'binary-label'
     description = ''
+    filename = 'dimacs/' + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -20,6 +22,12 @@ class BinaryLabeling(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(bits))] for node in range(total_nodes)]
 
     def encode(self, edges, constraints):
+        self._encode_and_write(edges, constraints, self.filename)
+
+    def solve(self):
+        return self._solve_from_dimacs(self.filename)
+
+    def _encode_and_write(self, edges, constraints, filename):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
         ordering_of = lambda node: self.ordering[node]
@@ -36,12 +44,16 @@ class BinaryLabeling(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                 cnf.and_cnf(to_cnf(implies_ordering))
             self.print_progress(begin, n)
         print() 
-        
-        self.cnf = cnf
-        to_dimacs(self.cnf)
-        # talked with cheng: just use the command interface to run against temp dimacs file
 
-    def solve(self):
+        print('writing to file: ' + self.filename)
+        dimacs = to_dimacs(self.cnf)
+        with open(self.filename, 'w') as f:
+            f.write(dimacs)
+        print('done writing encoding.')
+
+    # should somehow support solver as a param
+    def _solve_from_dimacs(self):
+        # talked with cheng: just use the command interface to run against temp dimacs file
         return 
 
 def lex(a, b, index=0):
@@ -51,4 +63,4 @@ def lex(a, b, index=0):
         # a < b
         a_i, b_i = a[index], b[index]
         is_digit_less = And(Not(a_i), b_i)
-        return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)
+        return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)))
