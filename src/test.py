@@ -22,15 +22,11 @@ class TestEncodings(unittest.TestCase):
     sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
 
     def assert_sat(self, Encoding):
-        # for polyg in type(self).sat_polyg:
         for polyg in self.sat_polyg:
             result, enc = run_encoding(Encoding, polyg)
             self.assertTrue(result)
-            # if enc.name == 'tree-bv':
-            #     print(enc.solver.model())
 
     def assert_unsat(self, Encoding):
-        # for polyg in type(self).unsat_polyg:
         for polyg in self.unsat_polyg:
             print(polyg)
             result, enc = run_encoding(Encoding, polyg)
@@ -68,9 +64,11 @@ class TestEncodings(unittest.TestCase):
     def test_writes(self):
         for polyg in self.sat_polyg:
             run_encoding(BinaryLabel, polyg) 
-            run_encoding(BinaryLabel, polyg) 
+            run_encoding(UnaryLabel, polyg) 
 
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
+            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
 
 if __name__ == "__main__":
     unittest.main(buffer=True)
+    # unittest.main()

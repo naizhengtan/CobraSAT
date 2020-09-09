@@ -1,4 +1,5 @@
 from encoding import Encoding
+from formula.cnf import *
 from formula.dimacs import to_dimacs
 from formula.formula import *
 from mixins import (
@@ -8,12 +9,14 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
+from config import PROJECT_ROOT
 import math
 
 class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     name = 'unary-label'
     description = ''
-    filename = 'dimacs/' + name + '.dimacs'
+    folder = PROJECT_ROOT + '/dimacs/'
+    filename = folder + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -32,6 +35,7 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
     def _encode_and_write(self, edges, constraints, filename):
         # writes it to temp file
+        var_of = make_var_of_edge(self.adjacency)
         n = self.total_nodes
         cnf = self.encode_polygraph(var_of, edges, constraints)
 
@@ -52,12 +56,14 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                     ])
 
                     cnf.add_clause(clause_yi)
-                    cnf.add_clause(clause_y)
+                    cnf.add_clause(clause_yj)
                     clause_U.add_literal(literal(self.aux_U[i][j][bit]))
                 
                 cnf.add_clause(clause_U)
-            self.print_progress(begin, n)
+            self.print_progress(i, n)
         print() 
+
+        self.cnf = cnf
 
         print('writing to file: ' + self.filename)
         dimacs = to_dimacs(self.cnf)
@@ -65,6 +71,5 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
             f.write(dimacs)
         print('done writing encoding.')
 
-    
-    def _solve_from_dimacs(self):
+    def _solve_from_dimacs(self, filename):
         pass
