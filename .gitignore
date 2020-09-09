@@ -4,3 +4,5 @@ minisat-os-x
 .venv
 monosat
 z3
+archive
+dimacs
