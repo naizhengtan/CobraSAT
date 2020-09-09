@@ -9,6 +9,7 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
+from solvers import minisat_dimacs
 from config import PROJECT_ROOT
 import math
 import os
@@ -58,8 +59,7 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
     # should somehow support solver as a param
     def _solve_from_dimacs(self, filename):
-        # talked with cheng: just use the command interface to run against temp dimacs file
-        return 
+        return minisat_dimacs(filename)
 
 def lex(a, b, index=0):
     if len(a) - index == 0:

@@ -69,6 +69,11 @@ class TestEncodings(unittest.TestCase):
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
 
+    def test_binary_label(self):
+        self.assert_ser(BinaryLabel)
+
+    def test_unary_label(self):
+        self.assert_ser(UnaryLabel)
 if __name__ == "__main__":
     unittest.main(buffer=True)
-    # unittest.main()
+#    unittest.main()

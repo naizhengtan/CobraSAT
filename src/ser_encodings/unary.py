@@ -10,6 +10,7 @@ from variables import (
     make_var_of_edge
 )
 from config import PROJECT_ROOT
+from solvers import minisat_dimacs
 import math
 
 class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
@@ -72,4 +73,4 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         print('done writing encoding.')
 
     def _solve_from_dimacs(self, filename):
-        pass
+        return minisat_dimacs(filename)
