@@ -6,28 +6,31 @@ from ser_encodings import (
     TopoBitVec, TopoInt,
     Axiomatic,
     Mono,
-    TreeBV
+    TreeBV,
+    BinaryLabel,
+    UnaryLabel
 )
 
 from verify import run_encoding
 from config import DATA_PATH
 
 class TestEncodings(unittest.TestCase):
-
     # due to map returning an iterator, we have to convert to list for it to be reused
     prepend_path = lambda l: list(map(lambda s: DATA_PATH + '/unit_test/' + s, l))
     unsat_polyg = prepend_path(['cycle.polyg', 'unsat.polyg'])
     sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
 
     def assert_sat(self, Encoding):
-        for polyg in type(self).sat_polyg:
+        # for polyg in type(self).sat_polyg:
+        for polyg in self.sat_polyg:
             result, enc = run_encoding(Encoding, polyg)
             self.assertTrue(result)
-            if enc.name == 'tree-bv':
-                print(enc.solver.model())
+            # if enc.name == 'tree-bv':
+            #     print(enc.solver.model())
 
     def assert_unsat(self, Encoding):
-        for polyg in type(self).unsat_polyg:
+        # for polyg in type(self).unsat_polyg:
+        for polyg in self.unsat_polyg:
             print(polyg)
             result, enc = run_encoding(Encoding, polyg)
             self.assertFalse(result)
@@ -59,6 +62,11 @@ class TestEncodings(unittest.TestCase):
 
     def test_tree_bitvec(self):
         self.assert_ser(TreeBV)
+
+    def test_writes(self):
+        for polyg in self.sat_polyg:
+            result, enc = run_encoding(BinaryLabel, polyg) 
+            self.assertTrue(result)
     # prefer to test individually instead to avoid errors
     # def test_ser_sat(self):
     #     for Encoding in ENCODING_CLASSES:

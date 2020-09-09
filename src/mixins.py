@@ -33,10 +33,10 @@ class MixinEncodePolygraphCNF:
             cnf.add_clause(Clause([literal(variable)]))
 
         for constraint in constraints:
-            one_true = Clause(literal(var_of(constraint[0])), 
-                              literal(var_of(constraint[1])))
-            one_false = Clause(literal(var_of(constraint[0]), False), 
-                               literal(var_of(constraint[1]), False))
+            one_true = Clause([literal(var_of(constraint[0])), 
+                              literal(var_of(constraint[1]))])
+            one_false = Clause([literal(var_of(constraint[0]), False), 
+                               literal(var_of(constraint[1]), False)])
             # XOR:
             cnf.add_clause(one_true)
             cnf.add_clause(one_false)

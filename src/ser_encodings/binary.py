@@ -1,4 +1,5 @@
 from encoding import Encoding
+from formula.convert import to_cnf
 from formula.dimacs import to_dimacs
 from formula.formula import *
 from mixins import (
@@ -8,12 +9,15 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
+from config import PROJECT_ROOT
 import math
+import os
 
 class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     name = 'binary-label'
     description = ''
-    filename = 'dimacs/' + name + '.dimacs'
+    folder = PROJECT_ROOT + '/dimacs/'
+    filename = folder + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -31,28 +35,29 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
         ordering_of = lambda node: self.ordering[node]
-
         n = self.total_nodes
-        s = self.solver
 
-        cnf = self.encode_polygraph(var_of, edges, constraints)
+        self.cnf = self.encode_polygraph(var_of, edges, constraints)
 
         for begin in range(n):
             for end in range(n): 
                 # could precompute the formula and fill in the vars
                 implies_ordering = Implies(var_of([begin, end]), lex(ordering_of(begin), ordering_of(end)))
-                cnf.and_cnf(to_cnf(implies_ordering))
+                self.cnf.and_cnf(to_cnf(implies_ordering))
             self.print_progress(begin, n)
         print() 
 
         print('writing to file: ' + self.filename)
         dimacs = to_dimacs(self.cnf)
+        if not os.path.isdir(self.folder):
+            os.mkdir(self.folder)
+        
         with open(self.filename, 'w') as f:
             f.write(dimacs)
         print('done writing encoding.')
 
     # should somehow support solver as a param
-    def _solve_from_dimacs(self):
+    def _solve_from_dimacs(self, filename):
         # talked with cheng: just use the command interface to run against temp dimacs file
         return 
 
