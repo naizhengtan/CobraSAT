@@ -12,7 +12,8 @@ from ser_encodings import (
 )
 
 from verify import run_encoding
-from config import DATA_PATH
+from config import DATA_PATH, PROJECT_ROOT
+import os
 
 class TestEncodings(unittest.TestCase):
     # due to map returning an iterator, we have to convert to list for it to be reused
@@ -35,6 +36,7 @@ class TestEncodings(unittest.TestCase):
             result, enc = run_encoding(Encoding, polyg)
             self.assertFalse(result)
 
+    # prefer to test individually to avoid errors
     def assert_ser(self, Encoding):
         self.assert_sat(Encoding)
         self.assert_unsat(Encoding)
@@ -65,18 +67,10 @@ class TestEncodings(unittest.TestCase):
 
     def test_writes(self):
         for polyg in self.sat_polyg:
-            result, enc = run_encoding(BinaryLabel, polyg) 
-            self.assertTrue(result)
-    # prefer to test individually instead to avoid errors
-    # def test_ser_sat(self):
-    #     for Encoding in ENCODING_CLASSES:
-    #         for polyg in type(self).sat_polyg:
-    #             self.assertTrue(run_encoding(Encoding, polyg))
+            run_encoding(BinaryLabel, polyg) 
+            run_encoding(BinaryLabel, polyg) 
 
-    # def test_ser_unsat(self):
-    #     for Encoding in ENCODING_CLASSES:
-    #         for polyg in type(self).unsat_polyg:
-    #             self.assertFalse(run_encoding(Encoding, polyg))
+            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
 
 if __name__ == "__main__":
     unittest.main(buffer=True)
