@@ -61,15 +61,21 @@ class ToTseitinCNF:
         return sub_cnf.and_cnf(left_cnf).and_cnf(right_cnf), out_var
 
     def visit_Atom(self, atom):
-        # empty cnf since this is a terminal node
-        return (CNF(), atom.name)
+        # in <=> out ===
+        # (in OR ~out) AND (~in OR out)
+        out_var = self._next_var()
+        in_var = atom.name
+        clause_1 = Clause([literal(in_var), literal(out_var, False)])
+        clause_2 = Clause([literal(in_var, False), literal(out_var)])
+        return CNF([clause_1, clause_2]), out_var
 
     def visit_Not(self, not_formula):
         inner_cnf, in_var = not_formula.inner.accept(self)
         out_var = self._next_var()
 
-        # (~in OR out)
-        sub_cnf = CNF([Clause([literal(in_var, False), literal(out_var)])])
+        # (in OR out) AND (~in OR ~out)
+        sub_cnf = CNF([Clause([literal(in_var), literal(out_var)])])
+        sub_cnf = CNF([Clause([literal(in_var, False), literal(out_var, False)])])
 
         # chain subexprs
         return inner_cnf.and_cnf(sub_cnf), out_var

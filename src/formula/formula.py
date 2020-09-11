@@ -78,7 +78,8 @@ class Iff(Expandable, BinaryOperator):
     def expand(self):
         left = self.left
         right = self.right
-        return Or(And(left, right), And(Not(left), Not(right)))
+        return And(Implies(left, right).expand(), Implies(right, left).expand())
+        # return Or(And(left, right), And(Not(left), Not(right)))
 
 def make_atoms(names):
     return (*[Atom(name) for name in names.split()],) # unpack into a tuple!

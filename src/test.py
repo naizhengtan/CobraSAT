@@ -15,51 +15,50 @@ from verify import run_encoding
 from config import DATA_PATH, PROJECT_ROOT
 import os
 
+# due to map returning an iterator, we have to convert to list for it to be reused
+prepend_path = lambda l: list(map(lambda s: DATA_PATH + '/unit_test/' + s, l))
+unsat_polyg = prepend_path(['cycle.polyg', 'unsat.polyg'])
+sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
+
+def assert_sat(test, Encoding):
+    for polyg in sat_polyg:
+        result, enc = run_encoding(Encoding, polyg)
+        test.assertTrue(result)
+
+def assert_unsat(test, Encoding):
+    for polyg in unsat_polyg:
+        result, enc = run_encoding(Encoding, polyg)
+        test.assertFalse(result)
+
+# prefer to test individually to avoid errors
+def assert_ser(test, Encoding):
+    assert_sat(test, Encoding)
+    assert_unsat(test, Encoding)
+
 class TestEncodings(unittest.TestCase):
-    # due to map returning an iterator, we have to convert to list for it to be reused
-    prepend_path = lambda l: list(map(lambda s: DATA_PATH + '/unit_test/' + s, l))
-    unsat_polyg = prepend_path(['cycle.polyg', 'unsat.polyg'])
-    sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
-
-    def assert_sat(self, Encoding):
-        for polyg in self.sat_polyg:
-            result, enc = run_encoding(Encoding, polyg)
-            self.assertTrue(result)
-
-    def assert_unsat(self, Encoding):
-        for polyg in self.unsat_polyg:
-            print(polyg)
-            result, enc = run_encoding(Encoding, polyg)
-            self.assertFalse(result)
-
-    # prefer to test individually to avoid errors
-    def assert_ser(self, Encoding):
-        self.assert_sat(Encoding)
-        self.assert_unsat(Encoding)
-
     def test_tc1(self):
-        self.assert_ser(TC1)
+        assert_ser(self, TC1)
 
     def test_tc3(self):
-        self.assert_ser(TC3)
+        assert_ser(self, TC3)
 
     def test_tc(self):
-        self.assert_ser(TC)
+        assert_ser(self, TC)
 
     def test_topo_bitvec(self):
-        self.assert_ser(TopoBitVec)
+        assert_ser(self, TopoBitVec)
 
     def test_topo_int(self):
-        self.assert_ser(TopoInt)
+        assert_ser(self, TopoInt)
 
     def test_axiomatic(self):
-        self.assert_ser(Axiomatic)
+        assert_ser(self, Axiomatic)
 
     def test_mono(self):
-        self.assert_ser(Mono)
+        assert_ser(self, Mono)
 
     def test_tree_bitvec(self):
-        self.assert_ser(TreeBV)
+        assert_ser(self, TreeBV)
 
     def test_writes(self):
         for polyg in self.sat_polyg:
@@ -69,11 +68,13 @@ class TestEncodings(unittest.TestCase):
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
 
+class TestDimacsEncodings(unittest.TestCase):
     def test_binary_label(self):
-        self.assert_ser(BinaryLabel)
+        assert_ser(self, BinaryLabel)
 
     def test_unary_label(self):
-        self.assert_ser(UnaryLabel)
+        assert_ser(self, UnaryLabel)
+
 if __name__ == "__main__":
     unittest.main(buffer=True)
 #    unittest.main()

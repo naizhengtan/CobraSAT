@@ -34,12 +34,15 @@ def simplify_clause(clause):
         literal = normalize_literal(literal)
         name, is_positive = literal
 
-        if name in seen:
-            if is_positive != seen[name]: # both Var, !Var are in clause => clause is always true
-                return []
-        else:
-            simplified.add_literal(literal)
-            seen[name] = is_positive
+        if name != 'FALSE':
+            if name == 'TRUE':
+                return Clause([])
+            elif name in seen:
+                if is_positive != seen[name]: # both Var, !Var are in clause => clause is always true
+                    return Clause([])
+            else:
+                simplified.add_literal(literal)
+                seen[name] = is_positive
      
     return simplified
 

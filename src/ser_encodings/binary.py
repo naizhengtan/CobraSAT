@@ -1,6 +1,7 @@
 from encoding import Encoding
-from formula.convert import to_cnf
+from formula.convert import to_cnf, to_tseitin_cnf
 from formula.dimacs import to_dimacs
+from formula.cnf import simplify_cnf
 from formula.formula import *
 from mixins import (
     MixinEncodePolygraphCNF,
@@ -43,13 +44,15 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         for begin in range(n):
             for end in range(n): 
                 # could precompute the formula and fill in the vars
-                implies_ordering = Implies(var_of([begin, end]), lex(ordering_of(begin), ordering_of(end)))
-                self.cnf.and_cnf(to_cnf(implies_ordering))
+                implies_ordering = Implies(var_of([begin, end]), 
+                                           lex(ordering_of(begin), ordering_of(end)))
+                self.cnf.and_cnf(to_tseitin_cnf(implies_ordering))
             self.print_progress(begin, n)
-        print() 
+        print()
+        # print(simplify_cnf(self.cnf))
 
         print('writing to file: ' + self.filename)
-        dimacs = to_dimacs(self.cnf)
+        dimacs = to_dimacs(simplify_cnf(self.cnf))
         if not os.path.isdir(self.folder):
             os.mkdir(self.folder)
         

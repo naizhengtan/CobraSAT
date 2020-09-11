@@ -29,6 +29,7 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                             for i in range(total_nodes)] # U[i][j][k]
 
     def encode(self, edges, constraints):
+        # self._encode_and_write(edges, constraints, 'filename' in if options['filename'])
         self._encode_and_write(edges, constraints, self.filename)
 
     def solve(self):
