@@ -41,4 +41,5 @@ class MixinEncodePolygraphCNF:
             cnf.add_clause(one_true)
             cnf.add_clause(one_false)
 
+        print(cnf)
         return cnf

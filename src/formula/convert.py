@@ -62,13 +62,8 @@ class ToTseitinCNF:
         return sub_cnf.and_cnf(left_cnf).and_cnf(right_cnf), out_var
 
     def visit_Atom(self, atom):
-        # in <=> out ===
-        # (in OR ~out) AND (~in OR out)
-        out_var = self._next_var()
-        in_var = atom.name
-        clause_1 = Clause([literal(in_var), literal(out_var, False)])
-        clause_2 = Clause([literal(in_var, False), literal(out_var)])
-        return CNF([clause_1, clause_2]), out_var
+        # edge case might exist when Atom is only thing in CNF
+        return CNF(), atom.name
 
     def visit_Not(self, not_formula):
         inner_cnf, in_var = not_formula.inner.accept(self)

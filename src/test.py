@@ -14,6 +14,9 @@ from ser_encodings import (
 from verify import run_encoding
 from config import DATA_PATH, PROJECT_ROOT
 import os
+from contextlib import redirect_stdout
+from io import StringIO
+
 
 # due to map returning an iterator, we have to convert to list for it to be reused
 prepend_path = lambda l: list(map(lambda s: DATA_PATH + '/unit_test/' + s, l))
@@ -22,13 +25,15 @@ sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
 
 def assert_sat(test, Encoding):
     for polyg in sat_polyg:
-        result, enc = run_encoding(Encoding, polyg)
-        test.assertTrue(result)
+        with test.subTest(polyg=polyg):
+            result, enc = run_encoding(Encoding, polyg)
+            test.assertTrue(result)
 
 def assert_unsat(test, Encoding):
     for polyg in unsat_polyg:
-        result, enc = run_encoding(Encoding, polyg)
-        test.assertFalse(result)
+        with test.subTest(polyg=polyg):
+            result, enc = run_encoding(Encoding, polyg)
+            test.assertFalse(result)
 
 # prefer to test individually to avoid errors
 def assert_ser(test, Encoding):
@@ -61,7 +66,7 @@ class TestEncodings(unittest.TestCase):
         assert_ser(self, TreeBV)
 
     def test_writes(self):
-        for polyg in self.sat_polyg:
+        for polyg in sat_polyg:
             run_encoding(BinaryLabel, polyg) 
             run_encoding(UnaryLabel, polyg) 
 
@@ -76,5 +81,9 @@ class TestDimacsEncodings(unittest.TestCase):
         assert_ser(self, UnaryLabel)
 
 if __name__ == "__main__":
-    unittest.main(buffer=True)
+    # hide stdout, even on failure
+    # https://codingdose.info/2018/03/22/supress-print-output-in-python/
+    trap = StringIO()
+    with redirect_stdout(trap):
+        unittest.main()
 #    unittest.main()

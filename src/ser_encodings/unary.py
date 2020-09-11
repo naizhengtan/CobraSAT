@@ -21,10 +21,10 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
-        self.adjacency = [[Atom(f'a:{origin},{dest}') for dest in range(total_nodes)] for origin in range(total_nodes)]
+        self.adjacency = [[f'a:{origin},{dest}' for dest in range(total_nodes)] for origin in range(total_nodes)]
         bits = total_nodes
-        self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(bits))] for node in range(total_nodes)]
-        self.aux_U = [[[Atom(f'U:{i},{j},{k}') for k in range(total_nodes)] 
+        self.ordering = [[f'o:{node},{bit}' for bit in range(int(bits))] for node in range(total_nodes)]
+        self.aux_U = [[[f'U:{i},{j},{k}' for k in range(total_nodes)] 
                         for j in range(total_nodes)] 
                             for i in range(total_nodes)] # U[i][j][k]
 

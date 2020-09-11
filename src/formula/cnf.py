@@ -9,6 +9,7 @@
 # where int is the var number, and -i as NOT(ith var)
 
 def literal(name, is_positive=True):
+    assert isinstance(name, str)
     return (name, is_positive)
 
 def simplify_cnf(cnf):
@@ -73,6 +74,7 @@ class CNF:
     def add_clause(self, clause):
         assert isinstance(clause, Clause)
         self.clauses.append(clause)
+        return self
     
     def __iter__(self):
         return iter(self.clauses)
@@ -84,6 +86,8 @@ class Clause:
     def __init__(self, literals=None):
         if literals is None:
             literals = []
+
+        assert not literals or isinstance(literals[0], tuple)
         self.literals = literals
     
     def or_clause(self, clause):
@@ -93,6 +97,7 @@ class Clause:
     
     def add_literal(self, literal):
         self.literals.append(literal)
+        return self
 
     def __iter__(self):
         return iter(self.literals)

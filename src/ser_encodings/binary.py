@@ -36,10 +36,11 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     def _encode_and_write(self, edges, constraints, filename):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
+        str_var_of = lambda edge: str(var_of(edge)) # encode_polygraph for dimacs expects strings
         ordering_of = lambda node: self.ordering[node]
         n = self.total_nodes
 
-        self.cnf = self.encode_polygraph(var_of, edges, constraints)
+        self.cnf = self.encode_polygraph(str_var_of, edges, constraints)
 
         for begin in range(n):
             for end in range(n): 
@@ -66,7 +67,7 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
 def lex(a, b, index=0):
     if len(a) - index == 0:
-        return FALSE 
+        return FALSE
     else:
         # a < b
         a_i, b_i = a[index], b[index]
