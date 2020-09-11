@@ -41,6 +41,7 @@ class ToCNF:
         return left_cnf.and_cnf(right_cnf)
 
 # formula.accept(ToTseitinCNF) -> (CNF, varname: str)
+# TODO: many of these transforms are wrong because the ToCNF transform is buggy
 class ToTseitinCNF:
     def __init__(self, prefix='ts'):
         self.prefix = prefix
@@ -74,8 +75,9 @@ class ToTseitinCNF:
         out_var = self._next_var()
 
         # (in OR out) AND (~in OR ~out)
-        sub_cnf = CNF([Clause([literal(in_var), literal(out_var)])])
-        sub_cnf = CNF([Clause([literal(in_var, False), literal(out_var, False)])])
+        clause_1 = Clause([literal(in_var), literal(out_var)])
+        clause_2 = Clause([literal(in_var, False), literal(out_var, False)])
+        sub_cnf = CNF([clause_1, clause_2])
 
         # chain subexprs
         return inner_cnf.and_cnf(sub_cnf), out_var
@@ -84,10 +86,9 @@ class ToTseitinCNF:
         return self._transform_binary_op(or_formula, self._Or_subexpr)
 
     def _Or_subexpr(self, left_var, right_var, out_var):
-        # subexpr: (~out_var AND ~left_var AND ~right_var) 
-        clause_1 = Clause([literal(out_var, False)])
-        clause_2 = Clause([literal(left_var, False)])
-        clause_3 = Clause([literal(right_var, False)])
+        clause_1 = Clause([literal(left_var), literal(right_var), literal(out_var, False)])
+        clause_2 = Clause([literal(left_var, False), literal(out_var)])
+        clause_3 = Clause([literal(right_var, False), literal(out_var)])
 
         return CNF([clause_1, clause_2, clause_3])
         
