@@ -43,7 +43,7 @@ class ToCNF:
 # formula.accept(ToTseitinCNF) -> (CNF, varname: str)
 # TODO: many of these transforms are wrong because the ToCNF transform is buggy
 class ToTseitinCNF:
-    def __init__(self, prefix='ts'):
+    def __init__(self, prefix='ts-'):
         self.prefix = prefix
         self.var_count = 0
 
@@ -63,6 +63,7 @@ class ToTseitinCNF:
 
     def visit_Atom(self, atom):
         # edge case might exist when Atom is only thing in CNF
+        # technically Atom shouldn't be visited unless there is a single Atom in the CNF
         return CNF(), atom.name
 
     def visit_Not(self, not_formula):

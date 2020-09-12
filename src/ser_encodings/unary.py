@@ -42,26 +42,15 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         cnf = self.encode_polygraph(var_of, edges, constraints)
 
         for i in range(n):
-            for j in range(n): 
-                clause_U = Clause()
+            for j in range(n):
 
-                for bit in range(n):
-                    clause_yi = Clause([
-                        literal(self.adjacency[i][j], False),
-                        literal(self.ordering[i][bit], False),
-                        literal(self.aux_U[i][j][bit], False)
-                    ])
-                    clause_yj = Clause([
-                        literal(self.adjacency[i][j], False),
-                        literal(self.ordering[j][bit]),
-                        literal(self.aux_U[i][j][bit], False)
-                    ])
-
-                    cnf.add_clause(clause_yi)
-                    cnf.add_clause(clause_yj)
-                    clause_U.add_literal(literal(self.aux_U[i][j][bit]))
+                lessunr_cnf = self._lessunr_circuit(i, j, n, self.adjacency, self.ordering, self.aux_U)
+                cnf.and_cnf(lessunr_cnf)
+    
+                # 2. unary circuit
+                if j >= 1:
+                    cnf.add_clause(Clause([literal(self.ordering[i][j - 1], False), literal(self.ordering[i][j])]))
                 
-                cnf.add_clause(clause_U)
             self.print_progress(i, n)
         print() 
 
@@ -72,6 +61,30 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         with open(self.filename, 'w') as f:
             f.write(dimacs)
         print('done writing encoding.')
+
+    def _lessunr_circuit(self, i, j, n, adjacency, ordering, aux_U):
+        # 1. lessunr circuit: {clause_yi, clause_yj for all bits} AND clause_U
+        cnf = CNF()
+
+        clause_U = Clause()
+        for bit in range(n):
+            clause_yi = Clause([
+                literal(adjacency[i][j], False),
+                literal(ordering[i][bit], False),
+                literal(aux_U[i][j][bit], False)
+            ])
+            clause_yj = Clause([
+                literal(adjacency[i][j], False),
+                literal(ordering[j][bit]),
+                literal(aux_U[i][j][bit], False)
+            ])
+            
+            cnf.add_clause(clause_yi)
+            cnf.add_clause(clause_yj)
+            clause_U.add_literal(literal(aux_U[i][j][bit]))
+
+        cnf.add_clause(clause_U)
+        return cnf
 
     def _solve_from_dimacs(self, filename):
         return minisat_dimacs(filename)
