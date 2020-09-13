@@ -47,7 +47,9 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                 # could precompute the formula and fill in the vars
                 implies_ordering = Implies(var_of([begin, end]), 
                                            lex(ordering_of(begin), ordering_of(end)))
-                self.cnf.and_cnf(to_tseitin_cnf(implies_ordering))
+                # print(implies_ordering)
+                # print()
+                self.cnf.and_cnf(to_cnf(implies_ordering))
             self.print_progress(begin, n)
         print()
         # print(simplify_cnf(self.cnf))
@@ -66,7 +68,7 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         return minisat_dimacs(filename)
 
 def lex(a, b, index=0):
-    if len(a) - index == 0:
+    if index == len(a):
         return FALSE
     else:
         # a < b
