@@ -10,7 +10,8 @@ class ToCNF:
     def visit_Not(self, not_formula):
         inner = not_formula.inner
         if isinstance(inner, Not):
-            return inner.accept(self)
+            pos_expr = inner.inner
+            return pos_expr.accept(self)
         elif isinstance(inner, Atom):
             return CNF([Clause([literal(inner.name, False)])])
         elif isinstance(inner, And):
