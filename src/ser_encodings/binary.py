@@ -49,7 +49,7 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                                            lex(ordering_of(begin), ordering_of(end)))
                 # print(implies_ordering)
                 # print()
-                self.cnf.and_cnf(to_cnf(implies_ordering))
+                self.cnf.and_cnf(to_tseitin_cnf(implies_ordering))
             self.print_progress(begin, n)
         print()
         # print(simplify_cnf(self.cnf))

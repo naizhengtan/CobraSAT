@@ -104,4 +104,5 @@ def to_cnf(formula):
     return formula.accept(ToCNF())
 
 def to_tseitin_cnf(formula):
-    return formula.accept(ToTseitinCNF())[0]
+    cnf, last_var = formula.accept(ToTseitinCNF())
+    return cnf.and_cnf(CNF([Clause([literal(last_var)])]))
