@@ -50,6 +50,8 @@ class ToTseitinCNF:
 
     def _next_var(self):
         self.var_count += 1
+        # thank you garrett:
+        # print(self.var_count) 
         return self.prefix + str(self.var_count)
 
     def _transform_binary_op(self, formula, subexpr):
@@ -78,7 +80,7 @@ class ToTseitinCNF:
 
         # chain subexprs
         return inner_cnf.and_cnf(sub_cnf), out_var
-    
+
     def visit_Or(self, or_formula):
         return self._transform_binary_op(or_formula, self._Or_subexpr)
 

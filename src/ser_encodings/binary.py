@@ -42,16 +42,18 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
         self.cnf = self.encode_polygraph(str_var_of, edges, constraints)
 
+        formula = TRUE 
         for begin in range(n):
             for end in range(n): 
                 # could precompute the formula and fill in the vars
                 implies_ordering = Implies(var_of([begin, end]), 
                                            lex(ordering_of(begin), ordering_of(end)))
-                # print(implies_ordering)
-                # print()
-                self.cnf.and_cnf(to_tseitin_cnf(implies_ordering))
+                formula = And(implies_ordering, formula)
             self.print_progress(begin, n)
         print()
+
+        ordering_cnf = simplify_cnf(to_tseitin_cnf(formula))
+        self.cnf.and_cnf(ordering_cnf)
         # print(simplify_cnf(self.cnf))
 
         print('writing to file: ' + self.filename)
