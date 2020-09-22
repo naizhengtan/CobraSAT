@@ -10,16 +10,18 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
-from solvers import minisat_dimacs
+from solvers import minisat_dimacs, z3_dimacs
 from config import PROJECT_ROOT
 import math
 import os
+import pathlib
+from abc import ABC, abstractmethod
 
-class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
-    name = 'binary-label'
+class BinaryLabel(ABC, Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
+    name = 'bin-label'
     description = ''
-    folder = PROJECT_ROOT + '/dimacs/'
-    filename = folder + name + '.dimacs'
+    default_folder = PROJECT_ROOT + '/dimacs/'
+    default_filename = default_folder + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -27,13 +29,18 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.bits = math.ceil(math.log(total_nodes, 2))
         self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(self.bits))] for node in range(total_nodes)]
 
-    def encode(self, edges, constraints):
-        self._encode_and_write(edges, constraints, self.filename)
+    def encode(self, edges, constraints, options):
+        filename = options['outfile'] if 'outfile' in option else self.default_filename
+        return self._encode_and_write(edges, constraints, filename)
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)
+    
+    @abstractmethod
+    def _solve_from_dimacs(self, filename):
+        pass
 
-    def _encode_and_write(self, edges, constraints, filename):
+    def _encode_and_write(self, edges, constraints, filename, options):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
         str_var_of = lambda edge: str(var_of(edge)) # encode_polygraph for dimacs expects strings
@@ -54,20 +61,16 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
         ordering_cnf = simplify_cnf(to_tseitin_cnf(formula))
         self.cnf.and_cnf(ordering_cnf)
-        # print(simplify_cnf(self.cnf))
 
         print('writing to file: ' + self.filename)
         dimacs = to_dimacs(simplify_cnf(self.cnf))
         if not os.path.isdir(self.folder):
             os.mkdir(self.folder)
         
-        with open(self.filename, 'w') as f:
+        with open(filename, 'w') as f:
             f.write(dimacs)
         print('done writing encoding.')
-
-    # should somehow support solver as a param
-    def _solve_from_dimacs(self, filename):
-        return minisat_dimacs(filename)
+        return filename
 
 def lex(a, b, index=0):
     if index == len(a):
@@ -77,3 +80,13 @@ def lex(a, b, index=0):
         a_i, b_i = a[index], b[index]
         is_digit_less = And(Not(a_i), b_i)
         return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)))
+
+class BinaryLabelMinisat(BinaryLabelWriter):
+    name = BinaryLabelWriter.name + '-minisat'
+    def _solve_from_dimacs(self, filename):
+        return minisat_dimacs(filename)
+
+class BinaryLabelDimacsZ3(BinaryLabelWriter):
+    name = BinaryLabelWriter.name + '-z3'
+    def _solve_from_dimacs(self, filename):
+        return z3_dimacs(filename)
