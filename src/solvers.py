@@ -16,10 +16,12 @@ def minisat_dimacs(dimacs_filename):
         return False
 
 def z3_dimacs(dimacs_filename):
-    result = subprocess.run(['z3 -dimacs', dimacs_filename], capture_output=True)
-    assert result.stdout == 'unsat' or result.stdout == 'sat'
+    result = subprocess.run(['z3', '-dimacs', dimacs_filename], capture_output=True)
+    output = result.stdout.split()[0]
+    print(output)
+    assert output == b'unsat' or output == b'sat'
 
-    if result.stdout == 'sat':
+    if output == b'sat':
         return True
     else:
         return False

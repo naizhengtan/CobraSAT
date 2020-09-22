@@ -14,10 +14,10 @@ from solvers import minisat_dimacs, z3_dimacs
 from config import PROJECT_ROOT
 import math
 import os
-import pathlib
+from pathlib import Path
 
 class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
-    name = 'bin-label'
+    name = 'binary-label'
     description = ''
     default_folder = PROJECT_ROOT + '/dimacs/'
     default_filename = default_folder + name + '.dimacs'
@@ -28,9 +28,9 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.bits = math.ceil(math.log(total_nodes, 2))
         self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(self.bits))] for node in range(total_nodes)]
 
-    def encode(self, edges, constraints, options):
-        filename = options['outfile'] if 'outfile' in option else self.default_filename
-        return self._encode_and_write(edges, constraints, filename)
+    def encode(self, edges, constraints, **options):
+        self.filename = options['outfile'] if 'outfile' in options else self.default_filename
+        return self._encode_and_write(edges, constraints, self.filename)
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)
@@ -38,7 +38,7 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     def _solve_from_dimacs(self, filename):
         raise NotImplementedError 
 
-    def _encode_and_write(self, edges, constraints, filename, options):
+    def _encode_and_write(self, edges, constraints, filename):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
         str_var_of = lambda edge: str(var_of(edge)) # encode_polygraph for dimacs expects strings
@@ -59,11 +59,13 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
         ordering_cnf = simplify_cnf(to_tseitin_cnf(formula))
         self.cnf.and_cnf(ordering_cnf)
-
-        print('writing to file: ' + self.filename)
+        
         dimacs = to_dimacs(simplify_cnf(self.cnf))
-        if not os.path.isdir(self.folder):
-            os.mkdir(self.folder)
+
+        print('writing to file: ' + filename)
+        folder = Path(filename).stem
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
         
         with open(filename, 'w') as f:
             f.write(dimacs)

@@ -70,7 +70,7 @@ class TestEncodings(unittest.TestCase):
             run_encoding(BinaryLabelMinisat, polyg) 
             run_encoding(UnaryLabel, polyg) 
 
-            elf.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
+            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
 
 class TestDimacsEncodings(unittest.TestCase):
@@ -87,4 +87,3 @@ if __name__ == "__main__":
     trap = StringIO()
     with redirect_stdout(trap):
         unittest.main()
-#    unittest.main()

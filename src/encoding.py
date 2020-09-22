@@ -6,7 +6,7 @@ class Encoding(ABC):
         pass
 
     @abstractmethod
-    def encode(self, total_nodes, edges, constraints):
+    def encode(self, total_nodes, edges, constraints, **options):
         pass
 
     @abstractmethod
