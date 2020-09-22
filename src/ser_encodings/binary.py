@@ -15,9 +15,8 @@ from config import PROJECT_ROOT
 import math
 import os
 import pathlib
-from abc import ABC, abstractmethod
 
-class BinaryLabel(ABC, Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
+class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     name = 'bin-label'
     description = ''
     default_folder = PROJECT_ROOT + '/dimacs/'
@@ -36,9 +35,8 @@ class BinaryLabel(ABC, Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     def solve(self):
         return self._solve_from_dimacs(self.filename)
     
-    @abstractmethod
     def _solve_from_dimacs(self, filename):
-        pass
+        raise NotImplementedError 
 
     def _encode_and_write(self, edges, constraints, filename, options):
         # writes it to temp file
@@ -81,12 +79,12 @@ def lex(a, b, index=0):
         is_digit_less = And(Not(a_i), b_i)
         return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)))
 
-class BinaryLabelMinisat(BinaryLabelWriter):
-    name = BinaryLabelWriter.name + '-minisat'
+class BinaryLabelMinisat(BinaryLabel):
+    name = BinaryLabel.name + '-minisat'
     def _solve_from_dimacs(self, filename):
         return minisat_dimacs(filename)
 
-class BinaryLabelDimacsZ3(BinaryLabelWriter):
-    name = BinaryLabelWriter.name + '-z3'
+class BinaryLabelZ3(BinaryLabel):
+    name = BinaryLabel.name + '-z3'
     def _solve_from_dimacs(self, filename):
         return z3_dimacs(filename)

@@ -7,7 +7,7 @@ from ser_encodings import (
     Axiomatic,
     Mono,
     TreeBV,
-    BinaryLabel,
+    BinaryLabelMinisat, BinaryLabelZ3,
     UnaryLabel
 )
 
@@ -67,15 +67,16 @@ class TestEncodings(unittest.TestCase):
 
     def test_writes(self):
         for polyg in sat_polyg:
-            run_encoding(BinaryLabel, polyg) 
+            run_encoding(BinaryLabelMinisat, polyg) 
             run_encoding(UnaryLabel, polyg) 
 
-            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
+            elf.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
             self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
 
 class TestDimacsEncodings(unittest.TestCase):
     def test_binary_label(self):
-        assert_ser(self, BinaryLabel)
+        assert_ser(self, BinaryLabelMinisat)
+        assert_ser(self, BinaryLabelZ3)
 
     def test_unary_label(self):
         assert_ser(self, UnaryLabel)
