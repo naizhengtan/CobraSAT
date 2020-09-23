@@ -6,7 +6,7 @@ from variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
 
 class TC(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc'
-    description = "Transitive closure with Z3's transitive closure"
+    description = "Transitive closure with Z3's transitive closure feature"
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes

@@ -68,10 +68,12 @@ class TestEncodings(unittest.TestCase):
     def test_writes(self):
         binary_label_default_file = PROJECT_ROOT + '/dimacs/binary-label.dimacs'
         unary_label_default_file = PROJECT_ROOT + '/dimacs/unary-label.dimacs'
+        named_file = PROJECT_ROOT + '/dimacs/this-is-a-test.dimacs'
+        remove_if_exists = lambda file: os.remove(filename) if os.path.exists(filename)
 
-        import os
-        os.remove(binary_label_default_file) 
-        os.remove(unary_label_default_file) 
+        remove_if_exists(binary_label_default_file)
+        remove_if_exists(unary_label_default_file)
+        remove_if_exists(named_file)
 
         for polyg in sat_polyg:
             run_encoding(BinaryLabelMinisat, polyg)
@@ -79,6 +81,14 @@ class TestEncodings(unittest.TestCase):
 
             self.assertTrue(os.path.isfile(binary_label_default_file))
             self.assertTrue(os.path.isfile(unary_label_default_file))
+            
+        run_encoding(UnaryLabelZ3, unsat_polyg[0], named_file)
+        self.assertTrue(os.path.isfile(named_file))
+
+        # cleanup 
+        remove_if_exists(binary_label_default_file)
+        remove_if_exists(unary_label_default_file)
+        remove_if_exists(named_file)
 
 class TestDimacsEncodings(unittest.TestCase):
     def test_binary_label(self):

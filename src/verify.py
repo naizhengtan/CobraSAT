@@ -24,7 +24,10 @@ def run_encoding(Encoding, polyg_filename, output_filename=None):
 
     print('\nbuilding encoding...')
     
-    enc.encode(edges, constraints, outfile=output_filename)
+    if output_filename:
+        enc.encode(edges, constraints, outfile=output_filename, save_to_file=True)
+    else: 
+        enc.encode(edges, constraints)
 
     encode_done = time.time()
     print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
