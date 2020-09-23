@@ -10,8 +10,8 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
-from solvers import minisat_sat, z3_sat
-from config import PROJECT_ROOT
+from solvers import minisat_sat, z3_sat, yices_sat
+from config import DEFAULT_DIMACS_FOLDER 
 import math
 import os
 from pathlib import Path
@@ -19,8 +19,7 @@ from pathlib import Path
 class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     name = 'binary-label'
     description = ''
-    default_folder = PROJECT_ROOT + '/dimacs/'
-    default_filename = default_folder + name + '.dimacs'
+    default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -63,9 +62,8 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         dimacs = to_dimacs(simplify_cnf(self.cnf))
 
         print('writing to file: ' + filename)
-        folder = Path(filename).stem
-        if not os.path.isdir(folder):
-            os.mkdir(folder)
+        folder = Path(filename).parent
+        folder.mkdir(parents=True, exist_ok=True)
         
         with open(filename, 'w') as f:
             f.write(dimacs)
@@ -82,13 +80,16 @@ def lex(a, b, index=0):
         return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)))
 
 class BinaryLabelMinisat(BinaryLabel):
+    name = BinaryLabel.name + '-minisat'
     def _solve_from_dimacs(self, filename):
         return minisat_sat(filename)
 
 class BinaryLabelZ3(BinaryLabel):
+    name = BinaryLabel.name + '-z3'
     def _solve_from_dimacs(self, filename):
         return z3_sat(filename)
 
 class BinaryLabelYices(BinaryLabel):
+    name = BinaryLabel.name + '-yices'
     def _solve_from_dimacs(self, filename):
         return yices_sat(filename)

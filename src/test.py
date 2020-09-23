@@ -8,7 +8,7 @@ from ser_encodings import (
     Mono,
     TreeBV,
     BinaryLabelMinisat, BinaryLabelZ3, BinaryLabelYices,
-    UnaryLabel
+    UnaryLabelMinisat, UnaryLabelZ3, UnaryLabelYices,
 )
 
 from verify import run_encoding
@@ -66,12 +66,19 @@ class TestEncodings(unittest.TestCase):
         assert_ser(self, TreeBV)
 
     def test_writes(self):
-        for polyg in sat_polyg:
-            run_encoding(BinaryLabelMinisat, polyg) 
-            run_encoding(UnaryLabel, polyg) 
+        binary_label_default_file = PROJECT_ROOT + '/dimacs/binary-label.dimacs'
+        unary_label_default_file = PROJECT_ROOT + '/dimacs/unary-label.dimacs'
 
-            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/binary-label.dimacs'))
-            self.assertTrue(os.path.isfile(PROJECT_ROOT + '/dimacs/unary-label.dimacs'))
+        import os
+        os.remove(binary_label_default_file) 
+        os.remove(unary_label_default_file) 
+
+        for polyg in sat_polyg:
+            run_encoding(BinaryLabelMinisat, polyg)
+            run_encoding(UnaryLabelMinisat, polyg) 
+
+            self.assertTrue(os.path.isfile(binary_label_default_file))
+            self.assertTrue(os.path.isfile(unary_label_default_file))
 
 class TestDimacsEncodings(unittest.TestCase):
     def test_binary_label(self):
@@ -80,7 +87,9 @@ class TestDimacsEncodings(unittest.TestCase):
         assert_ser(self, BinaryLabelYices)
 
     def test_unary_label(self):
-        assert_ser(self, UnaryLabel)
+        assert_ser(self, UnaryLabelMinisat)
+        assert_ser(self, UnaryLabelZ3)
+        assert_ser(self, UnaryLabelYices)
 
 if __name__ == "__main__":
     # hide stdout, even on failure

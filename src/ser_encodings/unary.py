@@ -9,15 +9,15 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
-from config import PROJECT_ROOT
-from solvers import minisat_sat
+from config import DEFAULT_DIMACS_FOLDER
+from solvers import minisat_sat, z3_sat, yices_sat
 import math
+from pathlib import Path
 
 class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
     name = 'unary-label'
     description = ''
-    folder = PROJECT_ROOT + '/dimacs/'
-    filename = folder + name + '.dimacs'
+    default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -28,8 +28,8 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                         for j in range(total_nodes)] 
                             for i in range(total_nodes)] # U[i][j][k]
 
-    def encode(self, edges, constraints):
-        # self._encode_and_write(edges, constraints, 'filename' in if options['filename'])
+    def encode(self, edges, constraints, **options):
+        self.filename = options['outfile'] if 'outfile' in options else self.default_filename
         self._encode_and_write(edges, constraints, self.filename)
 
     def solve(self):
@@ -56,10 +56,14 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
 
         self.cnf = cnf
 
+        folder = Path(filename).parent
+        folder.mkdir(parents=True, exist_ok=True)
         print('writing to file: ' + self.filename)
+
         dimacs = to_dimacs(self.cnf)
         with open(self.filename, 'w') as f:
             f.write(dimacs)
+
         print('done writing encoding.')
 
     def _lessunr_circuit(self, i, j, n, adjacency, ordering, aux_U):
@@ -87,4 +91,19 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         return cnf
 
     def _solve_from_dimacs(self, filename):
+        raise NotImplementedError
+
+class UnaryLabelMinisat(UnaryLabel):
+    name = UnaryLabel.name + '-minisat'
+    def _solve_from_dimacs(self, filename):
         return minisat_sat(filename)
+
+class UnaryLabelZ3(UnaryLabel):
+    name = UnaryLabel.name + '-z3'
+    def _solve_from_dimacs(self, filename):
+        return z3_sat(filename)
+
+class UnaryLabelYices(UnaryLabel):
+    name = UnaryLabel.name + '-yices'
+    def _solve_from_dimacs(self, filename):
+        return yices_sat(filename)
