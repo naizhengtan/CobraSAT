@@ -4,18 +4,9 @@ import time
 from polygraph import load_polyg
 from ser_encodings import ENCODING_CLASSES
 
-class Stopwatch:
-    def __init__(self):
-        self.start_time = time.time()
-
-    def stop_and_start(self):
-        diff = time.time() - self.start_time()
-        self.start_time = time.time()
-        return diff
 
 def timing(start, end):
     return (end - start)
-
 
 def run_encoding(Encoding, polyg_filename, output_filename=None):
     print('encoding: ' + Encoding.__name__)
@@ -32,21 +23,24 @@ def run_encoding(Encoding, polyg_filename, output_filename=None):
     print("init: {:.6f}sec".format(timing(start, init_done)))
 
     print('\nbuilding encoding...')
-    enc.encode(edges, constraints)
+    
+    enc.encode(edges, constraints, outfile=output_filename)
+
     encode_done = time.time()
     print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
 
     result = None
-    if not output_filename:
-        print('\nsolving encoding...')
-        result = enc.solve()
-        solve_done = time.time()
-        print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
+    # if not output_filename:
+    print('\nsolving encoding...')
+    result = enc.solve()
+    solve_done = time.time()
+    print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
 
-        print("\nsat? " + str(result))
-    else:
-        print('\nwriting encoding to file...')
+    print("\nsat? " + str(result))
+    # else:
+        # print('\nwriting encoding to file...')
         # TODO: write to file (and time it)
+        # currently not going to be supporting SMT2 output for all encodings
 
     return (result, enc)
 
