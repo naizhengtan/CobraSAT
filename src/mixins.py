@@ -42,3 +42,12 @@ class MixinEncodePolygraphCNF:
             cnf.add_clause(one_false)
 
         return cnf
+
+class MixinUseExistingEncode:
+    def encode(self, edges, constraints, **options):
+        # don't reencode if outfile exists
+        if options.get('use_existing') and options['outfile'] == self.filename and os.path.isfile(self.filename):
+            return self.filename
+        else:
+            self.filename = options['outfile'] if 'outfile' in options else self.default_filename
+            return self._encode_and_write(edges, constraints, self.filename)

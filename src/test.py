@@ -69,7 +69,7 @@ class TestEncodings(unittest.TestCase):
         binary_label_default_file = PROJECT_ROOT + '/dimacs/binary-label.dimacs'
         unary_label_default_file = PROJECT_ROOT + '/dimacs/unary-label.dimacs'
         named_file = PROJECT_ROOT + '/dimacs/this-is-a-test.dimacs'
-        remove_if_exists = lambda file: os.remove(filename) if os.path.exists(filename)
+        remove_if_exists = lambda filename: os.remove(filename) if os.path.exists(filename) else None
 
         remove_if_exists(binary_label_default_file)
         remove_if_exists(unary_label_default_file)

@@ -3,6 +3,7 @@ from formula.cnf import *
 from formula.dimacs import to_dimacs
 from formula.formula import *
 from mixins import (
+    MixinUseExistingEncode,
     MixinPrintProgress,
     MixinEncodePolygraphCNF
 )
@@ -14,7 +15,10 @@ from solvers import minisat_sat, z3_sat, yices_sat
 import math
 from pathlib import Path
 
-class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
+class UnaryLabel(MixinUseExistingEncode,
+                 MixinEncodePolygraphCNF, 
+                 MixinPrintProgress,
+                 Encoding):
     name = 'unary-label'
     description = ''
     default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
@@ -27,13 +31,6 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.aux_U = [[[f'U:{i},{j},{k}' for k in range(total_nodes)] 
                         for j in range(total_nodes)] 
                             for i in range(total_nodes)] # U[i][j][k]
-
-    def encode(self, edges, constraints, **options):
-        if not (options['use_existing'] and options['outfile'] == self.filename and os.path.isfile(self.filename)):
-            self.filename = options['outfile'] if 'outfile' in options else self.default_filename
-            return self._encode_and_write(edges, constraints, self.filename)
-        else:
-            return self.filename
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)

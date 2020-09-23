@@ -5,7 +5,8 @@ from formula.cnf import simplify_cnf
 from formula.formula import *
 from mixins import (
     MixinEncodePolygraphCNF,
-    MixinPrintProgress
+    MixinPrintProgress,
+    MixinUseExistingEncode
 )
 from variables import (
     make_var_of_edge
@@ -16,7 +17,10 @@ import math
 import os
 from pathlib import Path
 
-class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
+class BinaryLabel(MixinUseExistingEncode, 
+                  MixinEncodePolygraphCNF, 
+                  MixinPrintProgress, 
+                  Encoding):
     name = 'binary-label'
     description = ''
     default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
@@ -26,14 +30,6 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.adjacency = [[Atom(f'a:{origin},{dest}') for dest in range(total_nodes)] for origin in range(total_nodes)]
         self.bits = math.ceil(math.log(total_nodes, 2))
         self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(self.bits))] for node in range(total_nodes)]
-
-    def encode(self, edges, constraints, **options):
-        # don't reencode if outfile exists
-        if options['use_existing'] and options['outfile'] == self.filename and os.path.isfile(self.filename):
-            return self.filename
-        else:
-            self.filename = options['outfile'] if 'outfile' in options else self.default_filename
-            return self._encode_and_write(edges, constraints, self.filename)
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)
