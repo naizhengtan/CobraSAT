@@ -12,7 +12,6 @@ from variables import (
     make_var_of_edge
 )
 
-
 class TopoBitVec(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'topo-bv'
     description = 'Acyclicity encoded as embedded topological ordering. Using Z3 BitVec theory (unsigned integers) for ordering of nodes.'

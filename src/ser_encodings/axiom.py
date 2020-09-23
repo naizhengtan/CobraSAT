@@ -3,7 +3,6 @@ from encoding import Encoding
 from mixins import MixinWriteSMT2, MixinPrintProgress
 from variables import generate_z3_vars, make_var_of_edge
 
-
 class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
     name = 'ax'
     description = 'Direct encoding of SER using axiomatic framework in Biswas 19'
