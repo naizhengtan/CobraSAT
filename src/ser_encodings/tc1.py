@@ -3,7 +3,7 @@ from encoding import Encoding
 from mixins import MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress
 from variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
 
-class TransitiveTC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
+class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc1'
     description = 'tc1 encoding from Janota17 in Z3. Transitive closure encoded directly with predicate logic in Z3.'
 

@@ -29,8 +29,11 @@ class UnaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
                             for i in range(total_nodes)] # U[i][j][k]
 
     def encode(self, edges, constraints, **options):
-        self.filename = options['outfile'] if 'outfile' in options else self.default_filename
-        self._encode_and_write(edges, constraints, self.filename)
+        if not (options['use_existing'] and options['outfile'] == self.filename and os.path.isfile(self.filename)):
+            self.filename = options['outfile'] if 'outfile' in options else self.default_filename
+            return self._encode_and_write(edges, constraints, self.filename)
+        else:
+            return self.filename
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)

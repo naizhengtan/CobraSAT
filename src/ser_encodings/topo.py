@@ -42,7 +42,6 @@ class TopoBitVec(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintPro
     def solve(self):
         return super().solve()
 
-
 class TopoInt(TopoBitVec):
     name = 'topo-int'
     description = 'Similar to topo-bv, encoding acyclicity as embedded topological ordering, but with Z3 Integer theory for ordering of nodes.'

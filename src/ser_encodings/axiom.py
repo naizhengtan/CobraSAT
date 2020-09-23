@@ -49,4 +49,5 @@ class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
         return super().solve()
 
 # class AxiomaticLinearOrder(Encoding, MixinWriteSMT2, MixinPrintProgress):
-
+# TODO: may not possible with z3 currently, since Z3's linear order is >= instead of strict inequality
+# probably possible to add addition assertions to fix this

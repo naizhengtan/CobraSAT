@@ -28,8 +28,12 @@ class BinaryLabel(Encoding, MixinEncodePolygraphCNF, MixinPrintProgress):
         self.ordering = [[Atom(f'o:{node},{bit}') for bit in range(int(self.bits))] for node in range(total_nodes)]
 
     def encode(self, edges, constraints, **options):
-        self.filename = options['outfile'] if 'outfile' in options else self.default_filename
-        return self._encode_and_write(edges, constraints, self.filename)
+        # don't reencode if outfile exists
+        if options['use_existing'] and options['outfile'] == self.filename and os.path.isfile(self.filename):
+            return self.filename
+        else:
+            self.filename = options['outfile'] if 'outfile' in options else self.default_filename
+            return self._encode_and_write(edges, constraints, self.filename)
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)
