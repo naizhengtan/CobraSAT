@@ -10,7 +10,7 @@ from mixins import (
 from variables import (
     make_var_of_edge
 )
-from solvers import minisat_dimacs, z3_dimacs
+from solvers import minisat_sat, z3_sat
 from config import PROJECT_ROOT
 import math
 import os
@@ -82,11 +82,13 @@ def lex(a, b, index=0):
         return Or(is_digit_less, And(Or(Not(a_i), b_i), lex(a, b, index + 1)))
 
 class BinaryLabelMinisat(BinaryLabel):
-    name = BinaryLabel.name + '-minisat'
     def _solve_from_dimacs(self, filename):
-        return minisat_dimacs(filename)
+        return minisat_sat(filename)
 
 class BinaryLabelZ3(BinaryLabel):
-    name = BinaryLabel.name + '-z3'
     def _solve_from_dimacs(self, filename):
-        return z3_dimacs(filename)
+        return z3_sat(filename)
+
+class BinaryLabelYices(BinaryLabel):
+    def _solve_from_dimacs(self, filename):
+        return yices_sat(filename)

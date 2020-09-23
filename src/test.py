@@ -7,7 +7,7 @@ from ser_encodings import (
     Axiomatic,
     Mono,
     TreeBV,
-    BinaryLabelMinisat, BinaryLabelZ3,
+    BinaryLabelMinisat, BinaryLabelZ3, BinaryLabelYices,
     UnaryLabel
 )
 
@@ -77,6 +77,7 @@ class TestDimacsEncodings(unittest.TestCase):
     def test_binary_label(self):
         assert_ser(self, BinaryLabelMinisat)
         assert_ser(self, BinaryLabelZ3)
+        assert_ser(self, BinaryLabelYices)
 
     def test_unary_label(self):
         assert_ser(self, UnaryLabel)
@@ -86,4 +87,4 @@ if __name__ == "__main__":
     # https://codingdose.info/2018/03/22/supress-print-output-in-python/
     trap = StringIO()
     with redirect_stdout(trap):
-        unittest.main()
+       unittest.main()
