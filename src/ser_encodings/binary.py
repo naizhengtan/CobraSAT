@@ -3,15 +3,15 @@ from formula.convert import to_cnf, to_tseitin_cnf
 from formula.dimacs import to_dimacs
 from formula.cnf import simplify_cnf
 from formula.formula import *
-from mixins import (
+from encoding.mixins import (
     MixinEncodePolygraphCNF,
     MixinPrintProgress,
     MixinUseExistingEncode
 )
-from variables import (
+from encoding.variables import (
     make_var_of_edge
 )
-from solvers import minisat_sat, z3_sat, yices_sat
+from encoding.solvers import minisat_sat, z3_sat, yices_sat
 from config import DEFAULT_DIMACS_FOLDER 
 import math
 import os

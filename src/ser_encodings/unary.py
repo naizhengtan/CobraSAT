@@ -2,16 +2,16 @@ from encoding import Encoding
 from formula.cnf import *
 from formula.dimacs import to_dimacs
 from formula.formula import *
-from mixins import (
+from encoding.mixins import (
     MixinUseExistingEncode,
     MixinPrintProgress,
     MixinEncodePolygraphCNF
 )
-from variables import (
+from encoding.variables import (
     make_var_of_edge
 )
 from config import DEFAULT_DIMACS_FOLDER
-from solvers import minisat_sat, z3_sat, yices_sat
+from encoding.solvers import minisat_sat, z3_sat, yices_sat
 import math
 from pathlib import Path
 

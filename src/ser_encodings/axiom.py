@@ -1,7 +1,7 @@
 from z3 import *
 from encoding import Encoding
-from mixins import MixinWriteSMT2, MixinPrintProgress
-from variables import generate_z3_vars, make_var_of_edge
+from encoding.mixins import MixinWriteSMT2, MixinPrintProgress
+from encoding.variables import generate_z3_vars, make_var_of_edge
 
 class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
     name = 'ax'

@@ -1,7 +1,7 @@
 from z3 import *
 from encoding import Encoding
-from mixins import MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress
-from variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
+from encoding.mixins import MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress
+from encoding.variables import generate_z3_vars, generate_z3_aux_vars, make_var_of_edge
 
 class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc1'

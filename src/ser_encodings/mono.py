@@ -1,6 +1,6 @@
 from monosat import *
 from encoding import Encoding
-from mixins import MixinPrintProgress
+from encoding.mixins import MixinPrintProgress
 
 class Mono(Encoding, MixinPrintProgress):
     name = 'mono'

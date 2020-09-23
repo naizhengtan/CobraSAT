@@ -1,7 +1,7 @@
 import argparse
 from argparse import RawDescriptionHelpFormatter
 import time
-from polygraph import load_polyg
+from encoding.polygraph import load_polyg
 from ser_encodings import ENCODING_CLASSES
 
 

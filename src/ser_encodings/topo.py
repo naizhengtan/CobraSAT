@@ -1,11 +1,11 @@
 from z3 import *
 from encoding import Encoding
-from mixins import (
+from encoding.mixins import (
     MixinEncodePolygraphZ3,
     MixinWriteSMT2,
     MixinPrintProgress
 )
-from variables import (
+from encoding.variables import (
     generate_z3_vars,
     generate_z3_bitvec_aux_vars,
     generate_z3_int_aux_vars,
