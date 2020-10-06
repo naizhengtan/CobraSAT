@@ -9,6 +9,10 @@ import signal
 TIMEOUT_DEFAULT = 60*20 # 20 minutes
 
 def run_encoding(Encoding, polyg_filename, output_filename=None, timeout=TIMEOUT_DEFAULT):
+    def raise_timeout(signum, frame):
+        raise TimeoutError 
+    signal.signal(signal.SIGALRM, raise_timeout)
+
     encode_type = 'encode_and_write' if output_filename else 'encode'
     result = None
     timings = {
@@ -30,7 +34,8 @@ def run_encoding(Encoding, polyg_filename, output_filename=None, timeout=TIMEOUT
     timings['init'] = init_done - start
     print("init: {:.6f}sec".format(timings['init']))
 
-    with timeout_after(timeout):
+    signal.alarm(timeout)
+    try:
         # TODO: write to file (and time it),
         # probably need a distinction for timing write to file!
         print('\nbuilding encoding...')
@@ -51,7 +56,12 @@ def run_encoding(Encoding, polyg_filename, output_filename=None, timeout=TIMEOUT
         print("solve: {:.6f}sec".format(timings['solve']))
 
         print("\nsat? " + str(result))
-
+    except TimeoutError:
+        print() 
+        print('ERROR: Timed out!')
+    # Unregister the signal so it won't be triggered
+    # if the timeout is not reached.
+    signal.signal(signal.SIGALRM, signal.SIG_IGN)
     return (result, enc, timings)
 
 def encoding_help(encodings):
@@ -59,27 +69,6 @@ def encoding_help(encodings):
     for cl in encodings:
         acc += [' ‣ ', cl.name, ': ', cl.description, '\n']
     return ''.join(acc)
-
-# adapted from: https://www.jujens.eu/posts/en/2018/Jun/02/python-timeout-function/
-@contextmanager
-def timeout_after(time):
-    def raise_timeout(signum, frame):
-        raise TimeoutError
-
-    # Register a function to raise a TimeoutError on the signal.
-    signal.signal(signal.SIGALRM, raise_timeout)
-    # Schedule the signal to be sent after ``time``.
-    signal.alarm(time)
-
-    try:
-        yield
-    except TimeoutError:
-        print() 
-        print('ERROR: Timed out!')
-    finally:
-        # Unregister the signal so it won't be triggered
-        # if the timeout is not reached.
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
 
 def main():
     helptext = encoding_help(ENCODING_CLASSES)
