@@ -26,13 +26,13 @@ sat_polyg = prepend_path(['1cons.polyg', 'rmw.polyg', 'shared_successor.polyg'])
 def assert_sat(test, Encoding):
     for polyg in sat_polyg:
         with test.subTest(polyg=polyg):
-            result, enc = run_encoding(Encoding, polyg)
+            result, enc, timings = run_encoding(Encoding, polyg)
             test.assertTrue(result)
 
 def assert_unsat(test, Encoding):
     for polyg in unsat_polyg:
         with test.subTest(polyg=polyg):
-            result, enc = run_encoding(Encoding, polyg)
+            result, enc, timings = run_encoding(Encoding, polyg)
             test.assertFalse(result)
 
 # prefer to test individually to avoid errors

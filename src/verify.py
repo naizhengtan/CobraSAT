@@ -4,48 +4,46 @@ import time
 from encoding.polygraph import load_polyg
 from ser_encodings import ENCODING_CLASSES
 
-
-def timing(start, end):
-    return (end - start)
-
 def run_encoding(Encoding, polyg_filename, output_filename=None):
     print('encoding: ' + Encoding.__name__)
-    print('description: ' + Encoding.description)
+    # print('description: ' + Encoding.description)
     print('polygraph: ' + polyg_filename)
     print('loading polygraph...')
     n, edges, constraints = load_polyg(polyg_filename)
 
-    print('\ninitialize encoding...')
+    print('\ninitializing...')
+    timings = {}
     start = time.time()
-
     enc = Encoding(n)
     init_done = time.time()
-    print("init: {:.6f}sec".format(timing(start, init_done)))
+    timings['init'] = init_done - start
+    print("init: {:.6f}sec".format(timings['init']))
 
+    # TODO: write to file (and time it),
+    # probably need a distinction for timing write to file!
     print('\nbuilding encoding...')
-    
+    encode_type = 'encode'
+
     if output_filename:
+        encode_type = 'encode_and_write'
         enc.encode(edges, constraints, outfile=output_filename, save_to_file=True)
+        # currently not going to be supporting SMT2 output for all encodings
     else: 
         enc.encode(edges, constraints)
 
     encode_done = time.time()
-    print("encode: {:.6f}sec".format(timing(init_done, encode_done)))
+    timings[encode_type] = encode_done - init_done
+    print("encode: {:.6f}sec".format(timings[encode_type]))
 
-    result = None
-    # if not output_filename:
     print('\nsolving encoding...')
     result = enc.solve()
     solve_done = time.time()
-    print("solve: {:.6f}sec".format(timing(encode_done, solve_done)))
+    timings['solve'] = solve_done - encode_done
+    print("solve: {:.6f}sec".format(timings['solve']))
 
     print("\nsat? " + str(result))
-    # else:
-        # print('\nwriting encoding to file...')
-        # TODO: write to file (and time it)
-        # currently not going to be supporting SMT2 output for all encodings
 
-    return (result, enc)
+    return (result, enc, timings)
 
 def encoding_help(encodings):
     acc = []
