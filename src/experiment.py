@@ -15,7 +15,7 @@ def run_experiment(progress_object):
             encoding = key[0]
             polygraph = key[1]
 
-            result, encoding, timings = run_encoding(encoding, polygraph)
+            result, encoding, timings = run_encoding(encoding, polygraph, timeout=1)
             progress_object[key] = (result, timings)
 
             with open(PROGRESS_FILE, 'wb') as progress_file:
