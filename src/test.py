@@ -1,6 +1,6 @@
 import unittest
 
-from ser_encodings import (
+from serializability import (
     ENCODING_CLASSES,
     TC1, TC3, TC,
     TopoBitVec, TopoInt,
@@ -77,15 +77,15 @@ class TestEncodings(unittest.TestCase):
 
         for polyg in sat_polyg:
             run_encoding(BinaryLabelMinisat, polyg)
-            run_encoding(UnaryLabelMinisat, polyg) 
+            run_encoding(UnaryLabelMinisat, polyg)
 
             self.assertTrue(os.path.isfile(binary_label_default_file))
             self.assertTrue(os.path.isfile(unary_label_default_file))
-            
+
         run_encoding(UnaryLabelZ3, unsat_polyg[0], named_file)
         self.assertTrue(os.path.isfile(named_file))
 
-        # cleanup 
+        # cleanup
         remove_if_exists(binary_label_default_file)
         remove_if_exists(unary_label_default_file)
         remove_if_exists(named_file)

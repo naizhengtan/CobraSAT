@@ -2,7 +2,7 @@ import argparse
 from argparse import RawDescriptionHelpFormatter
 import time
 from encoding.polygraph import load_polyg
-from ser_encodings import ENCODING_CLASSES
+from serializability import ENCODING_CLASSES
 
 def run_encoding(Encoding, polyg_filename, output_filename=None):
     print('encoding: ' + Encoding.__name__)
@@ -28,7 +28,7 @@ def run_encoding(Encoding, polyg_filename, output_filename=None):
         encode_type = 'encode_and_write'
         enc.encode(edges, constraints, outfile=output_filename, save_to_file=True)
         # currently not going to be supporting SMT2 output for all encodings
-    else: 
+    else:
         enc.encode(edges, constraints)
 
     encode_done = time.time()

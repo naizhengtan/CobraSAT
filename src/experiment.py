@@ -1,4 +1,4 @@
-from ser_encodings import ENCODING_CLASSES
+from serializability import ENCODING_CLASSES
 from verify import run_encoding
 from collections import OrderedDict
 from itertools import product
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     read_percentages = [50, 75, 90]
     polygraph_size = range(100, 401, 50)
     polygraph_dir = 'polygraphs/workloads3'
-    polygraphs = [f'{polygraph_dir}/chengR{read_percent}-{size}.polyg' 
+    polygraphs = [f'{polygraph_dir}/chengR{read_percent}-{size}.polyg'
                     for size, read_percent in product(polygraph_size, read_percentages)]
     experiments_params = product(ENCODING_CLASSES, polygraphs)
     progress_object = None
