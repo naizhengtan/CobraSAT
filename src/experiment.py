@@ -18,7 +18,7 @@ def run_experiment(progress_object):
             result, encoding, timings = run_encoding(encoding, polygraph)
             progress_object[key] = (result, timings)
 
-            with open(PROGRESS_FILE, 'w') as progress_file:
+            with open(PROGRESS_FILE, 'wb') as progress_file:
                 pickle.dump(progress_object, progress_file)
 
 if __name__ == "__main__":
