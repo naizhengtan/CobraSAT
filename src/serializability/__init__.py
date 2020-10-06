@@ -6,10 +6,10 @@ from serializability.axiom import Axiomatic
 from serializability.mono import Mono
 from serializability.tree import TreeBV
 from serializability.binary import (
-    BinaryLabelMinisat, BinaryLabelZ3, BinaryLabelYices
+    BinaryLabel, BinaryLabelMinisat, BinaryLabelZ3, BinaryLabelYices
 )
 from serializability.unary import (
-    UnaryLabelMinisat, UnaryLabelZ3, UnaryLabelYices
+    UnaryLabel, UnaryLabelMinisat, UnaryLabelZ3, UnaryLabelYices
 )
 
 ENCODING_CLASSES = [TC1, TC3, TC,
