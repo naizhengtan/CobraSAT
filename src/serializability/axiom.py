@@ -4,8 +4,8 @@ from encoding.mixins import MixinWriteSMT2, MixinPrintProgress
 from encoding.variables import generate_z3_vars, make_var_of_edge
 
 class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
-    name = 'ax'
-    description = 'Direct encoding of SER using axiomatic framework in Biswas 19'
+    name = 'axiom'
+    description = 'Direct encoding of serializability (SER) using axiomatic framework from Biswas19.'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes

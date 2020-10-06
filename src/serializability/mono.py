@@ -4,7 +4,7 @@ from encoding.mixins import MixinPrintProgress
 
 class Mono(Encoding, MixinPrintProgress):
     name = 'mono'
-    description = 'Acyclicity of polygraph encoded in MonoSAT graph predicates'
+    description = 'Acyclicity of polygraph encoded with MonoSAT graph primitives.'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes

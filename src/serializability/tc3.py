@@ -5,7 +5,7 @@ from encoding.variables import generate_z3_vars, generate_z3_aux_vars, make_var_
 
 class TC3(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc3'
-    description = 'tc3 encoding from Janota17 in Z3. Similar to TC1 but without auxilary variables, allowed due to monotonicity of acyclicity'
+    description = 'TC3 encoding from Janota17 in Z3. Similar to TC1 but without auxilary variables, due to monotonicity of polygraph acyclicity.'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes

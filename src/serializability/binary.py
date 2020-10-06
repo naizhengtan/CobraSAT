@@ -12,17 +12,17 @@ from encoding.variables import (
     make_var_of_edge
 )
 from encoding.solvers import minisat_sat, z3_sat, yices_sat
-from config import DEFAULT_DIMACS_FOLDER 
+from config import DEFAULT_DIMACS_FOLDER
 import math
 import os
 from pathlib import Path
 
-class BinaryLabel(MixinUseExistingEncode, 
-                  MixinEncodePolygraphCNF, 
-                  MixinPrintProgress, 
+class BinaryLabel(MixinUseExistingEncode,
+                  MixinEncodePolygraphCNF,
+                  MixinPrintProgress,
                   Encoding):
     name = 'binary-label'
-    description = ''
+    description = 'Binary labeling from Janota17. Acyclicity encoded by binary number labels. Written to DIMACS file'
     default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
 
     def __init__(self, total_nodes):
@@ -33,9 +33,9 @@ class BinaryLabel(MixinUseExistingEncode,
 
     def solve(self):
         return self._solve_from_dimacs(self.filename)
-    
+
     def _solve_from_dimacs(self, filename):
-        raise NotImplementedError 
+        raise NotImplementedError
 
     def _encode_and_write(self, edges, constraints, filename):
         # writes it to temp file
@@ -46,11 +46,11 @@ class BinaryLabel(MixinUseExistingEncode,
 
         self.cnf = self.encode_polygraph(str_var_of, edges, constraints)
 
-        formula = TRUE 
+        formula = TRUE
         for begin in range(n):
-            for end in range(n): 
+            for end in range(n):
                 # could precompute the formula and fill in the vars
-                implies_ordering = Implies(var_of([begin, end]), 
+                implies_ordering = Implies(var_of([begin, end]),
                                            lex(ordering_of(begin), ordering_of(end)))
                 formula = And(implies_ordering, formula)
             self.print_progress(begin, n)
@@ -58,13 +58,13 @@ class BinaryLabel(MixinUseExistingEncode,
 
         ordering_cnf = simplify_cnf(to_tseitin_cnf(formula))
         self.cnf.and_cnf(ordering_cnf)
-        
+
         dimacs = to_dimacs(simplify_cnf(self.cnf))
 
         print('writing to file: ' + filename)
         folder = Path(filename).parent
         folder.mkdir(parents=True, exist_ok=True)
-        
+
         with open(filename, 'w') as f:
             f.write(dimacs)
         print('done writing encoding.')
@@ -81,15 +81,18 @@ def lex(a, b, index=0):
 
 class BinaryLabelMinisat(BinaryLabel):
     name = BinaryLabel.name + '-minisat'
+    description = BinaryLabel.description + ' solved by Minisat.'
     def _solve_from_dimacs(self, filename):
         return minisat_sat(filename)
 
 class BinaryLabelZ3(BinaryLabel):
     name = BinaryLabel.name + '-z3'
+    description = BinaryLabel.description + ' solved by Z3.'
     def _solve_from_dimacs(self, filename):
         return z3_sat(filename)
 
 class BinaryLabelYices(BinaryLabel):
-    name = BinaryLabel.name + '-yices'
+    name = BinaryLabel.name + '-yices2'
+    description = BinaryLabel.description + ' solved by Yices2.'
     def _solve_from_dimacs(self, filename):
         return yices_sat(filename)

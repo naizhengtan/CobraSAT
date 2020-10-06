@@ -16,11 +16,11 @@ import math
 from pathlib import Path
 
 class UnaryLabel(MixinUseExistingEncode,
-                 MixinEncodePolygraphCNF, 
+                 MixinEncodePolygraphCNF,
                  MixinPrintProgress,
                  Encoding):
     name = 'unary-label'
-    description = ''
+    description = 'Unary labeling from Janota17. Acyclicity encoded by unary number labels. Written to DIMACS file'
     default_filename = DEFAULT_DIMACS_FOLDER + name + '.dimacs'
 
     def __init__(self, total_nodes):
@@ -28,8 +28,8 @@ class UnaryLabel(MixinUseExistingEncode,
         self.adjacency = [[f'a:{origin},{dest}' for dest in range(total_nodes)] for origin in range(total_nodes)]
         bits = total_nodes
         self.ordering = [[f'o:{node},{bit}' for bit in range(int(bits))] for node in range(total_nodes)]
-        self.aux_U = [[[f'U:{i},{j},{k}' for k in range(total_nodes)] 
-                        for j in range(total_nodes)] 
+        self.aux_U = [[[f'U:{i},{j},{k}' for k in range(total_nodes)]
+                        for j in range(total_nodes)]
                             for i in range(total_nodes)] # U[i][j][k]
 
     def solve(self):
@@ -46,13 +46,13 @@ class UnaryLabel(MixinUseExistingEncode,
 
                 lessunr_cnf = self._lessunr_circuit(i, j, n, self.adjacency, self.ordering, self.aux_U)
                 cnf.and_cnf(lessunr_cnf)
-    
+
                 # 2. unary circuit
                 if j >= 1:
                     cnf.add_clause(Clause([literal(self.ordering[i][j - 1], False), literal(self.ordering[i][j])]))
-                
+
             self.print_progress(i, n)
-        print() 
+        print()
 
         self.cnf = cnf
 
@@ -82,7 +82,7 @@ class UnaryLabel(MixinUseExistingEncode,
                 literal(ordering[j][bit]),
                 literal(aux_U[i][j][bit], False)
             ])
-            
+
             cnf.add_clause(clause_yi)
             cnf.add_clause(clause_yj)
             clause_U.add_literal(literal(aux_U[i][j][bit]))
@@ -95,15 +95,18 @@ class UnaryLabel(MixinUseExistingEncode,
 
 class UnaryLabelMinisat(UnaryLabel):
     name = UnaryLabel.name + '-minisat'
+    description = UnaryLabel.description + ' solved by Minisat.'
     def _solve_from_dimacs(self, filename):
         return minisat_sat(filename)
 
 class UnaryLabelZ3(UnaryLabel):
     name = UnaryLabel.name + '-z3'
+    description = UnaryLabel.description + ' solved by Z3.'
     def _solve_from_dimacs(self, filename):
         return z3_sat(filename)
 
 class UnaryLabelYices(UnaryLabel):
-    name = UnaryLabel.name + '-yices'
+    name = UnaryLabel.name + '-yices2'
+    description = UnaryLabel.description + ' solved by Yices2.'
     def _solve_from_dimacs(self, filename):
         return yices_sat(filename)

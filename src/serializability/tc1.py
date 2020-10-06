@@ -5,7 +5,7 @@ from encoding.variables import generate_z3_vars, generate_z3_aux_vars, make_var_
 
 class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     name = 'tc1'
-    description = 'tc1 encoding from Janota17 in Z3. Transitive closure encoded directly with predicate logic in Z3.'
+    description = 'TC1 encoding from Janota17. Acyclicity encoded with transitive closure, using Z3 predicate logic.'
 
     def __init__(self, total_nodes):
         self.total_nodes = total_nodes
@@ -49,7 +49,7 @@ class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
 #     def encode(self, edges, constraints):
 #         # should write to some dimacs folder to solve from
 #         pass
-    
+
 #     def solve(self):
 #         # implement in child classes with different solvers?
 #         pass
