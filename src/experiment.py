@@ -19,7 +19,7 @@ def run_experiment(progress_object):
             progress_object[key] = (result, timings)
 
             with open(PROGRESS_FILE, 'w') as progress_file:
-                pickle.dump(progress_file)
+                pickle.dump(progress_object, progress_file)
 
 if __name__ == "__main__":
     read_percentages = [50, 75, 90]
@@ -31,7 +31,8 @@ if __name__ == "__main__":
     progress_object = None
 
     if os.path.isfile(PROGRESS_FILE):
-        progress_object = pickle.load(PROGESS_FILE)
+        with open(PROGRESS_FILE, 'rb') as progress_file:
+            progress_object = pickle.load(progress_file)
     else:
         progress_object = OrderedDict.fromkeys(experiments_params)
 
