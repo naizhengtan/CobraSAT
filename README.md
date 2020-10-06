@@ -1,6 +1,6 @@
 # CobraSAT
 
-Using SAT/SMT solvers to solve the problem of checking _view_-serializability.
+Using SAT/SMT solvers to solve the problem of checking _view_-serializability. 🐍
 
 ## Usage
 
@@ -23,7 +23,7 @@ To run the test suite:
 ## Dependencies
 
 - Python 3.6+
-- z3 (build from source; there is an issue with the pypi version)
+- z3 4.8.9+
 - minisat
 - monosat
 - yices2
@@ -32,7 +32,7 @@ You can install from source and place the resulting binary in `.venv/bin` if you
 
 ## Bibliography
 
-- [Cobra: Making Transactional Key-Value Stores Verifiably Serializable (Tan, Zhao, Mu, and Walfish](http://naizhengtan.github.io/)
+- [Cobra: Making Transactional Key-Value Stores Verifiably Serializable (Tan, Zhao, Mu, and Walfish, 2020) (forthcoming)](http://naizhengtan.github.io/)
 - [On the Quest for an Acyclic Graph (Janota, Grigore, and Manquinho, 2017)](https://arxiv.org/abs/1708.01745)
 - [On the Complexity of Checking Transactional Consistency (Biswas and Enea, 2019)](https://arxiv.org/abs/1908.0450)
-- [SAT modulo Graphs: Acyclicity (Gebser Janhunen Rintanen](https://link.springer.com/chapter/10.1007/978-3-319-11558-0_10)
+- [SAT modulo Graphs: Acyclicity (Gebser, Janhunen, and Rintanen, 2014)](https://link.springer.com/chapter/10.1007/978-3-319-11558-0_10)
