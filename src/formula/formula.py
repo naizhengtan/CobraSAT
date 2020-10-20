@@ -14,17 +14,20 @@ class Formula(ABC):
         return getattr(visitor, 'visit_' + class_name)(self)
 
     def postorder(self):
-        stack = [self]
+        self = self.expand() if isinstance(self, Expandable) else self
 
-        # replicate recursive call stack iteratively
-        while stack:
-            current = stack.pop()
-            current = current.expand() if isinstance(current, Expandable) else current
-            yield current
-
-            children = reversed(current.children())
-            for child in children:
-                stack.append(child)
+        if isinstance(self, Atom):
+            yield self
+        elif isinstance(self, UnaryOperator):
+            for node in self.inner.postorder():
+                yield node
+            yield self
+        elif isinstance(self, BinaryOperator):
+            for node in self.left.postorder():
+                yield node
+            for node in self.right.postorder():
+                yield node
+            yield self
 
     def children(self):
         return []
