@@ -103,35 +103,39 @@ def Or_subexpr(left_var, right_var, out_var):
 
     return CNF([clause_1, clause_2, clause_3])
 
-def to_tseitin_cnf_iterative(formula):
-    var_count = 0
+class ToIterativeTseitinCNF:
+    def __init__(self):
+        self.var_count = 0
+        self.mapping = {}
 
-    def next_var():
-        var_count += 1
-        return var_count
+    def _next_var(self):
+        self.var_count += 1
+        return self.var_count
 
-    mapping = {}
-    for node in formula.postfix():
-        if isinstance(node, Atom):
-            mapping[node] = node.name
-        elif isinstance(node, Or):
-            node_cnf, mapping = transform_binary_op_iteratative(node, Or_subexpr, mapping)
-        elif isinstance(node, And):
-            node_cnf, mapping = transform_binary_op_iteratative(node, And_subexpr, mapping)
+    def transform(self, formula):
+        cnf = CNF()
+        for node in formula.postorder():
+            print(node)
+            # if isinstance(node, Atom):
+            #     mapping[node] = node.name
+            # elif isinstance(node, Or):
+            #     node_cnf = self._transform_binary_op_iterative(node, Or_subexpr)
+            # elif isinstance(node, And):
+            #     node_cnf  = self._transform_binary_op_iterative(node, And_subexpr)
 
-        cnf.and_cnf(node_cnf)
+            # cnf.and_cnf(node_cnf)
 
-    return node_cnf
+        return cnf
 
-def transform_binary_op_iterative(node, subexpr, mapping):
-    assert (left_var := mapping[node.left])
-    assert (right_var := mapping[node.right])
+    def _transform_binary_op_iterative(self, node, subexpr):
+        left_var = self.mapping[node.left]
+        right_var = self.mapping[node.right]
 
-    mapping[node] = next_var()
-    out_var = mapping[node]
+        mapping[node] = self._next_var()
+        out_var = self.mapping[node]
 
-    sub_cnf = subexpr(left_var, right_var, out_var)
-    return sub_cnf, mapping
+        sub_cnf = subexpr(left_var, right_var, out_var)
+        return sub_cnf
 
 def to_cnf(formula):
     return formula.accept(ToCNF())
@@ -139,3 +143,6 @@ def to_cnf(formula):
 def to_tseitin_cnf(formula):
     cnf, last_var = formula.accept(ToTseitinCNF())
     return cnf.and_cnf(CNF([Clause([literal(last_var)])]))
+
+def to_tseitin_cnf_iterative(formula):
+    return ToIterativeTseitinCNF().transform(formula)

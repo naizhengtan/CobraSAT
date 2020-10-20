@@ -8,7 +8,7 @@ class Formula(ABC):
 
     def __str__(self):
         return repr(self)
-    
+
     def accept(self, visitor):
         class_name = type(self).__name__
         return getattr(visitor, 'visit_' + class_name)(self)
@@ -25,7 +25,6 @@ class Formula(ABC):
             children = reversed(current.children())
             for child in children:
                 stack.append(child)
-
 
     def children(self):
         return []
@@ -49,7 +48,7 @@ class BinaryOperator(Formula, ABC):
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.left)} {repr(self.right)})'
-    
+
     def children(self):
         return [self.left, self.right]
 
