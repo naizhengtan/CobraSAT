@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 # TODO: consider registering instead of using inheritance?
 class Formula(ABC):
     @abstractmethod
@@ -14,6 +13,23 @@ class Formula(ABC):
         class_name = type(self).__name__
         return getattr(visitor, 'visit_' + class_name)(self)
 
+    def postorder(self):
+        stack = [self]
+
+        # replicate recursive call stack iteratively
+        while stack:
+            current = stack.pop()
+            current = current.expand() if isinstance(current, Expandable) else current
+            yield current
+
+            children = reversed(current.children())
+            for child in children:
+                stack.append(child)
+
+
+    def children(self):
+        return []
+
 class UnaryOperator(Formula, ABC):
     def __init__(self, inner):
         self.inner = inner
@@ -21,6 +37,9 @@ class UnaryOperator(Formula, ABC):
     def __repr__(self):
         op = type(self).__name__
         return f'({op} {repr(self.inner)})'
+
+    def children(self):
+        return [self.inner]
 
 class BinaryOperator(Formula, ABC):
     def __init__(self, left, right):
@@ -48,7 +67,6 @@ class Expandable(ABC):
     @abstractmethod
     def expand(self):
         pass
-
     def accept(self, visitor):
         return self.expand().accept(visitor)
 

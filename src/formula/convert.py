@@ -6,7 +6,7 @@ from formula.cnf import *
 class ToCNF:
     def visit_Atom(self, atom):
         return CNF([Clause([literal(atom.name)])])
-    
+
     def visit_Not(self, not_formula):
         inner = not_formula.inner
         if isinstance(inner, Not):
@@ -24,7 +24,7 @@ class ToCNF:
             return Not(inner.expand()).accept(self)
         else:
             raise Exception("not a valid inner formula type")
-    
+
     def visit_Or(self, or_formula):
         left_cnf = or_formula.left.accept(self)
         right_cnf = or_formula.right.accept(self)
@@ -51,7 +51,7 @@ class ToTseitinCNF:
     def _next_var(self):
         self.var_count += 1
         # thank you garrett:
-        # print(self.var_count) 
+        # print(self.var_count)
         return self.prefix + str(self.var_count)
 
     def _transform_binary_op(self, formula, subexpr):
@@ -70,6 +70,7 @@ class ToTseitinCNF:
         return CNF(), atom.name
 
     def visit_Not(self, not_formula):
+        # in_var is the output variable of the inner, the input variable of the Not
         inner_cnf, in_var = not_formula.inner.accept(self)
         out_var = self._next_var()
 
@@ -82,25 +83,55 @@ class ToTseitinCNF:
         return inner_cnf.and_cnf(sub_cnf), out_var
 
     def visit_Or(self, or_formula):
-        return self._transform_binary_op(or_formula, self._Or_subexpr)
+        return self._transform_binary_op(or_formula, Or_subexpr)
 
-    def _Or_subexpr(self, left_var, right_var, out_var):
-        clause_1 = Clause([literal(left_var), literal(right_var), literal(out_var, False)])
-        clause_2 = Clause([literal(left_var, False), literal(out_var)])
-        clause_3 = Clause([literal(right_var, False), literal(out_var)])
-
-        return CNF([clause_1, clause_2, clause_3])
-        
     def visit_And(self, and_formula):
-        return self._transform_binary_op(and_formula, self._And_subexpr)
-    
-    def _And_subexpr(self, left_var, right_var, out_var):
-        # subexpr: (a OR ~c) AND (b OR ~c) AND (c OR ~a OR ~b)
-        clause_1 = Clause([literal(left_var), literal(out_var, False)])
-        clause_2 = Clause([literal(right_var), literal(out_var, False)])
-        clause_3 = Clause([literal(left_var, False), literal(right_var, False), literal(out_var)])
-        
-        return CNF([clause_1, clause_2, clause_3])
+        return self._transform_binary_op(and_formula, And_subexpr)
+
+def And_subexpr(left_var, right_var, out_var):
+    # subexpr: (a OR ~c) AND (b OR ~c) AND (c OR ~a OR ~b)
+    clause_1 = Clause([literal(left_var), literal(out_var, False)])
+    clause_2 = Clause([literal(right_var), literal(out_var, False)])
+    clause_3 = Clause([literal(left_var, False), literal(right_var, False), literal(out_var)])
+
+    return CNF([clause_1, clause_2, clause_3])
+
+def Or_subexpr(left_var, right_var, out_var):
+    clause_1 = Clause([literal(left_var), literal(right_var), literal(out_var, False)])
+    clause_2 = Clause([literal(left_var, False), literal(out_var)])
+    clause_3 = Clause([literal(right_var, False), literal(out_var)])
+
+    return CNF([clause_1, clause_2, clause_3])
+
+def to_tseitin_cnf_iterative(formula):
+    var_count = 0
+
+    def next_var():
+        var_count += 1
+        return var_count
+
+    mapping = {}
+    for node in formula.postfix():
+        if isinstance(node, Atom):
+            mapping[node] = node.name
+        elif isinstance(node, Or):
+            node_cnf, mapping = transform_binary_op_iteratative(node, Or_subexpr, mapping)
+        elif isinstance(node, And):
+            node_cnf, mapping = transform_binary_op_iteratative(node, And_subexpr, mapping)
+
+        cnf.and_cnf(node_cnf)
+
+    return node_cnf
+
+def transform_binary_op_iterative(node, subexpr, mapping):
+    assert (left_var := mapping[node.left])
+    assert (right_var := mapping[node.right])
+
+    mapping[node] = next_var()
+    out_var = mapping[node]
+
+    sub_cnf = subexpr(left_var, right_var, out_var)
+    return sub_cnf, mapping
 
 def to_cnf(formula):
     return formula.accept(ToCNF())
