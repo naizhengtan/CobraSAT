@@ -16,8 +16,8 @@ def run_experiment(progress_object):
         encoding = key[1]
         # disable labeling encodings for now due to recursion limits
         # TODO: convert label encodings to use postorder generator traversal?
-        if not value and not issubclass(encoding, (serializability.BinaryLabel)):
-                                                   # serializability.TreeBV)):
+        if not value and not issubclass(encoding, (serializability.BinaryLabel,
+                                                   serializability.TreeBV)):
             result, encoding, timings = run_encoding(encoding, polygraph)
             progress_object[key] = (result, timings)
 
@@ -26,8 +26,8 @@ def run_experiment(progress_object):
 
 if __name__ == "__main__":
     read_percentages = [50, 75, 90]
-    polygraph_size = range(100, 401, 50)
-    # polygraph_size = range(200, 301, 50)
+    # polygraph_size = range(100, 401, 50)
+    polygraph_size = range(100, 201, 50)
     polygraph_dir = 'polygraphs/workloads3'
     polygraphs = [f'{polygraph_dir}/chengR{read_percent}-{size}.polyg'
                     for size, read_percent in product(polygraph_size, read_percentages)]
