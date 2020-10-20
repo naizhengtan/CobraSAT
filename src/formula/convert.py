@@ -74,10 +74,7 @@ class ToTseitinCNF:
         inner_cnf, in_var = not_formula.inner.accept(self)
         out_var = self._next_var()
 
-        # (in OR out) AND (~in OR ~out)
-        clause_1 = Clause([literal(in_var), literal(out_var)])
-        clause_2 = Clause([literal(in_var, False), literal(out_var, False)])
-        sub_cnf = CNF([clause_1, clause_2])
+        sub_cnf = Not_subexpr(in_var, out_var)
 
         # chain subexprs
         return inner_cnf.and_cnf(sub_cnf), out_var
@@ -87,6 +84,13 @@ class ToTseitinCNF:
 
     def visit_And(self, and_formula):
         return self._transform_binary_op(and_formula, And_subexpr)
+
+def Not_subexpr(in_var, out_var):
+    # (in OR out) AND (~in OR ~out)
+    clause_1 = Clause([literal(in_var), literal(out_var)])
+    clause_2 = Clause([literal(in_var, False), literal(out_var, False)])
+
+    return CNF([clause_1, clause_2])
 
 def And_subexpr(left_var, right_var, out_var):
     # subexpr: (a OR ~c) AND (b OR ~c) AND (c OR ~a OR ~b)
@@ -104,38 +108,43 @@ def Or_subexpr(left_var, right_var, out_var):
     return CNF([clause_1, clause_2, clause_3])
 
 class ToIterativeTseitinCNF:
-    def __init__(self):
+    def __init__(self, prefix='ts-'):
+        self.prefix = prefix
         self.var_count = 0
         self.mapping = {}
 
     def _next_var(self):
         self.var_count += 1
-        return self.var_count
+        return self.prefix + str(self.var_count)
 
     def transform(self, formula):
         cnf = CNF()
+
         for node in formula.postorder():
-            print(node)
-            # if isinstance(node, Atom):
-            #     mapping[node] = node.name
-            # elif isinstance(node, Or):
-            #     node_cnf = self._transform_binary_op_iterative(node, Or_subexpr)
-            # elif isinstance(node, And):
-            #     node_cnf  = self._transform_binary_op_iterative(node, And_subexpr)
+            if isinstance(node, Atom):
+                self.mapping[node] = node.name
+            elif isinstance(node, Not):
+                self.mapping[node] = self._next_var()
+                out_var = self.mapping[node]
+                in_var = self.mapping[node.inner]
+                node_cnf = cnf.and_cnf(Not_subexpr(in_var, out_var))
+            elif isinstance(node, Or):
+                node_cnf = self._transform_binary_op_iterative(node, Or_subexpr, cnf)
+            elif isinstance(node, And):
+                node_cnf = self._transform_binary_op_iterative(node, And_subexpr, cnf)
 
-            # cnf.and_cnf(node_cnf)
+        last_var = self.mapping[formula]
+        return cnf.and_cnf(CNF([Clause([literal(last_var)])]))
 
-        return cnf
-
-    def _transform_binary_op_iterative(self, node, subexpr):
+    def _transform_binary_op_iterative(self, node, subexpr, cnf):
         left_var = self.mapping[node.left]
         right_var = self.mapping[node.right]
 
-        mapping[node] = self._next_var()
+        self.mapping[node] = self._next_var()
         out_var = self.mapping[node]
 
         sub_cnf = subexpr(left_var, right_var, out_var)
-        return sub_cnf
+        return cnf.and_cnf(sub_cnf)
 
 def to_cnf(formula):
     return formula.accept(ToCNF())
