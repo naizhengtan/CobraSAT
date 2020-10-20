@@ -13,18 +13,22 @@ class Formula(ABC):
         class_name = type(self).__name__
         return getattr(visitor, 'visit_' + class_name)(self)
 
+    # postorder traversal, and also expand any Expandables
     def postorder(self):
         self = self.expand() if isinstance(self, Expandable) else self
 
         if isinstance(self, Atom):
             yield self
         elif isinstance(self, UnaryOperator):
+            self.inner = self.inner.expand() if isinstance(self.inner, Expandable) else self.inner
             for node in self.inner.postorder():
                 yield node
             yield self
         elif isinstance(self, BinaryOperator):
+            self.left = self.left.expand() if isinstance(self.left, Expandable) else self.left
             for node in self.left.postorder():
                 yield node
+            self.right = self.right.expand() if isinstance(self.right, Expandable) else self.right
             for node in self.right.postorder():
                 yield node
             yield self

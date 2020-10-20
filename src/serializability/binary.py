@@ -1,5 +1,5 @@
 from encoding import Encoding
-from formula.convert import to_cnf, to_tseitin_cnf
+from formula.convert import to_cnf, to_tseitin_cnf_iterative
 from formula.dimacs import to_dimacs
 from formula.cnf import simplify_cnf
 from formula.formula import *
@@ -56,7 +56,7 @@ class BinaryLabel(MixinUseExistingEncode,
             self.print_progress(begin, n)
         print()
 
-        ordering_cnf = simplify_cnf(to_tseitin_cnf(formula))
+        ordering_cnf = simplify_cnf(to_tseitin_cnf_iterative(formula))
         self.cnf.and_cnf(ordering_cnf)
 
         dimacs = to_dimacs(simplify_cnf(self.cnf))
