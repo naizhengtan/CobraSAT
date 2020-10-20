@@ -6,5 +6,3 @@ monosat
 z3
 archive
 dimacs
-results.pckl
-results*.pckl
