@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import deque
 
 # TODO: consider registering instead of using inheritance?
 class Formula(ABC):
@@ -16,22 +17,20 @@ class Formula(ABC):
     # postorder traversal, and also expand any Expandables
     def postorder(self):
         self = self.expand() if isinstance(self, Expandable) else self
+        stack = deque([self])
+        output = deque()
 
-        if isinstance(self, Atom):
-            yield self
-        elif isinstance(self, UnaryOperator):
-            self.inner = self.inner.expand() if isinstance(self.inner, Expandable) else self.inner
-            for node in self.inner.postorder():
-                yield node
-            yield self
-        elif isinstance(self, BinaryOperator):
-            self.left = self.left.expand() if isinstance(self.left, Expandable) else self.left
-            for node in self.left.postorder():
-                yield node
-            self.right = self.right.expand() if isinstance(self.right, Expandable) else self.right
-            for node in self.right.postorder():
-                yield node
-            yield self
+        while stack:
+            current = stack.pop()
+            if isinstance(current, UnaryOperator):
+                current.inner = current.inner.expand() if isinstance(current.inner, Expandable) else current.inner
+            elif isinstance(current, BinaryOperator):
+                current.left = current.left.expand() if isinstance(current.left, Expandable) else current.left
+                current.right = current.right.expand() if isinstance(current.right, Expandable) else current.right
+            stack.extend(current.children())
+            output.appendleft(current)
+
+        return output
 
     def children(self):
         return []

@@ -13,6 +13,7 @@ print()
 
 print('iterative:')
 f = Or(And(Atom('p1'), Atom('q1')), Or(And(Atom('p2'), Not(Atom('q2'))), And(Not(Atom('p3')), Not(Atom('q3')))))
+print(f.postorder())
 print(to_tseitin_cnf_iterative(f))
 print()
 
