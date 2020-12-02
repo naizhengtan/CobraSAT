@@ -15,6 +15,6 @@ from serializability.unary import (
 ENCODING_CLASSES = [TC1, TC3, TC,
                     TopoBitVec, TopoInt,
                     Axiomatic, Mono, TreeBV,
-                    BinaryLabelMinisat, BinaryLabelZ3,
+                    BinaryLabelMinisat, BinaryLabelZ3, BinaryLabelYices,
                     UnaryLabelMinisat, UnaryLabelZ3, UnaryLabelYices
                     ]

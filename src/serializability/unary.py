@@ -90,6 +90,15 @@ class UnaryLabel(MixinUseExistingEncode,
         cnf.add_clause(clause_U)
         return cnf
 
+    def clause_count(self, n, edges, constraints):
+        polygraph_clause_count = len(edges) + 2*len(constraints)
+        return polygraph_clause_count + 2*n**3 + n**2 + n*(n-1)
+
+    def variable_count(self, n, edges, constraints):
+        # + adjacency + ordering + auxillary
+        # don't double count the edge/constraint vars, which overlap with adjacency vars
+        return n**2 + n**2 + n**3
+
     def _solve_from_dimacs(self, filename):
         raise NotImplementedError
 

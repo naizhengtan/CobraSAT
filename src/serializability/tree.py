@@ -58,3 +58,6 @@ class TreeBV(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgres
 
     def solve(self):
         return super().solve()
+
+    def variable_count(self, n, edges, constraints):
+        return n**2 + n*int(math.ceil(math.log2(n)))

@@ -24,6 +24,7 @@ class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
             s.add(var_of(edge)) # known WR edges must be ordered
 
         for constraint in constraints:
+            # Notice how constraints line up to axioms
             t1 = constraint[1][1]
             t2 = constraint[0][1]
             t3 = constraint[0][0]
@@ -33,8 +34,8 @@ class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
         # Strict total ordering: 1) transitive, 2. trichotomous (asymmetric and semi-connex)
         # asymmetric = irreflexive and antisymmetric
         for begin in range(n):
+            s.add(Not(var_of([begin, begin]))) # irreflexive
             for end in range(n):
-                s.add(Not(var_of([begin, begin]))) # irreflexive
                 if begin != end:
                     s.add(Xor(var_of([begin, end]), var_of([end, begin]))) # asymmetric and semi-connex
                 for middle in range(n):
@@ -47,6 +48,12 @@ class Axiomatic(Encoding, MixinWriteSMT2, MixinPrintProgress):
 
     def solve(self):
         return super().solve()
+
+    def variable_count(self, n, edges, constraints):
+        # unique variables?
+        # redundancy in pairings of begin, middle, end
+        # [begin/middle/end, begin/middle/end] -> n^2
+        return n**2
 
 # class AxiomaticLinearOrder(Encoding, MixinWriteSMT2, MixinPrintProgress):
 # TODO: may not possible with z3 currently, since Z3's linear order is >= instead of strict inequality
