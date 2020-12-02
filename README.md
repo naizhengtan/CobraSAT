@@ -1,6 +1,6 @@
 # CobraSAT
 
-Using SAT/SMT solvers to solve the problem of checking _view_-serializability. 🐍
+Using SAT/SMT solvers to check serializability of _black-box_ databases. 🐍
 
 ## Usage
 
