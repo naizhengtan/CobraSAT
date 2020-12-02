@@ -38,6 +38,9 @@ class TC1(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
     def solve(self):
         return super().solve()
 
+    def variable_count(self, n, edges, constraints):
+        return n**2 + n**2
+
 # # consider also: z3 with sat + tseitin tactics
 # class TC1Dimacs(Encoding):
 #     name = 'tc1-dimacs'

@@ -38,6 +38,18 @@ class BinaryLabel(MixinUseExistingEncode,
         raise NotImplementedError
 
     def _encode_and_write(self, edges, constraints, filename):
+        dimacs = self.make_dimacs_cnf(edge, constraints)
+
+        print('writing to file: ' + filename)
+        folder = Path(filename).parent
+        folder.mkdir(parents=True, exist_ok=True)
+
+        with open(filename, 'w') as f:
+            f.write(dimacs)
+        print('done writing encoding.')
+        return filename
+
+    def make_dimacs_cnf(self, edges, constraints):
         # writes it to temp file
         var_of = make_var_of_edge(self.adjacency)
         str_var_of = lambda edge: str(var_of(edge)) # encode_polygraph for dimacs expects strings
@@ -60,15 +72,18 @@ class BinaryLabel(MixinUseExistingEncode,
         self.cnf.and_cnf(ordering_cnf)
 
         dimacs = to_dimacs(simplify_cnf(self.cnf))
+        return dimacs
 
-        print('writing to file: ' + filename)
-        folder = Path(filename).parent
-        folder.mkdir(parents=True, exist_ok=True)
+    def clause_count(self, n, edges, constraints):
+        # count the number of CNF clauses
+        cnf_header = self.make_dimacs_cnf(edges, constraints).split('\n')[3].split()
+        clause_count = cnf_header[3]
+        return clause_count
 
-        with open(filename, 'w') as f:
-            f.write(dimacs)
-        print('done writing encoding.')
-        return filename
+    def variable_count(self, n, edges, constraints):
+        cnf_header = self.make_dimacs_cnf(edges, constraints).split('\n')[3].split()
+        var_count = cnf_header[2]
+        return var_count
 
 def lex(a, b, index=0):
     if index == len(a):

@@ -32,3 +32,6 @@ class TC(Encoding, MixinEncodePolygraphZ3, MixinWriteSMT2, MixinPrintProgress):
 
     def solve(self):
         return super().solve()
+
+    def variable_count(self):
+        return n**2
