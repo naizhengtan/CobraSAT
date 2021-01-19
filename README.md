@@ -2,6 +2,22 @@
 
 Using SAT/SMT solvers to check serializability of _black-box_ databases. 🐍
 
+## Results
+
+### Plot of runtime against number of nodes for 50:50 read-write ratio polygraphs
+
+![Plot of runtime against number of nodes for 50:50 read-write ratio polygraphs](images/runtime-against-nodes.png)
+
+*tree-bv for node counts over 200 excluded because of timeouts*
+
+### Plot of runtime against number of nodes for 75:25 read-write ratio polygraphs, comparing solver backends
+
+![Plot of runtime against number of nodes for 75:25 read-write ratio polygraphs, comparing solver backends](images/backend-comparison.png)
+
+### Plot of solve time against number of SAT variables for all polygraphs
+
+![Plot of solve time against number of variables for all polygraphs](images/solve-time-against-variables.png)
+
 ## Usage
 
 Use `verify.py` to solve a given polygraph with a given encoding.

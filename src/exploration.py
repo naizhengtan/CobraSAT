@@ -53,7 +53,7 @@ import math
 from cycler import cycler
 
 
-# In[6]:
+# In[63]:
 
 
 def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude=True, log_scale=True):
@@ -73,9 +73,12 @@ def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude
     if log_scale:
         ax.set_yscale('log')
     ax.legend()
+    
+    ax.set_xlabel('# nodes in polygraph')
+    ax.set_ylabel('Total run time (seconds)')
 
 
-# In[7]:
+# In[64]:
 
 
 # plot_by_encoding_for_percent(results, 50, ['tc1', 'tc3', 'tree-bv', 'axiom'])
@@ -207,7 +210,7 @@ def plot_solve_time_for_percent(results, read_percent=50, exclude=[]):
     ax.legend()
 
 
-# In[20]:
+# In[62]:
 
 
 plot_solve_time_for_percent(results, 50, exclude=['tree-bv'])
@@ -219,7 +222,7 @@ plot_solve_time_for_percent(results, 50, exclude=['tree-bv'])
 # number of clauses?
 
 
-# In[50]:
+# In[58]:
 
 
 import matplotlib.cm as cm
@@ -277,22 +280,26 @@ def plot_sat_vars(results, counts):
     
     ax.set_yscale('log')
     ax.legend(encodings)
+    
+    ax.set_xlabel('# variables')
+    ax.set_ylabel('Solve time (seconds)')
+    
 
 
-# In[51]:
+# In[59]:
 
 
 plot_sat_vars(results, counts)
 
 
-# In[52]:
+# In[65]:
 
 
 binary_unary = ['binary-label-minisat', 'binary-label-z3', 'binary-label-yices2', 'unary-label-minisat', 'unary-label-z3', 'unary-label-yices2']
-plot_by_encoding_for_percent(results, 50, binary_unary, False, False)
+plot_by_encoding_for_percent(results, 75, binary_unary, False, False)
 
 
-# In[53]:
+# In[66]:
 
 
 plot_by_encoding_for_percent(results, 50, ['unary-label-minisat', 'unary-label-z3', 'unary-label-yices2'], False)
