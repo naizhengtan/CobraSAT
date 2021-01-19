@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 import pickle
@@ -13,7 +13,7 @@ results = pickle.load(open('../final.pckl', 'rb'))
 results = sorted(results, key=lambda el: 'zzzz' if el['encoding'] == 'mono' else el['encoding'] + el['polygraph'])
 
 
-# In[2]:
+# In[3]:
 
 
 read_percentages = [50, 75, 90]
@@ -24,7 +24,7 @@ polygraphs = [f'{polygraph_dir}/chengR{read_percent}-{size}.polyg'
                 for size, read_percent in product(polygraph_sizes, read_percentages)]
 
 
-# In[3]:
+# In[4]:
 
 
 def total_time(timings):
@@ -41,7 +41,7 @@ def results_by_encoding_for_percent(results, read_percent):
     return by_encoding
 
 
-# In[4]:
+# In[5]:
 
 
 get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'retina'")
@@ -53,10 +53,10 @@ import math
 from cycler import cycler
 
 
-# In[5]:
+# In[6]:
 
 
-def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude=True):
+def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude=True, log_scale=True):
     fig, ax = plt.subplots(figsize=(12, 12))
 
     rows = results_by_encoding_for_percent(results, read_percent)
@@ -69,30 +69,32 @@ def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude
             timing = np.pad(rows[enc], (0, 5 - len(rows[enc])), 'constant', constant_values=(math.inf))
             ax.scatter(polygraph_sizes, timing, )
             ax.plot(polygraph_sizes, timing, label=enc)
-    
-    ax.set_yscale('log')
+
+    if log_scale:
+        ax.set_yscale('log')
     ax.legend()
-
-
-# In[6]:
-
-
-plot_by_encoding_for_percent(results, 50, ['tc1', 'tc3', 'tree-bv', 'axiom'])
 
 
 # In[7]:
 
 
-plot_by_encoding_for_percent(results, 75, ['tc1', 'tc3', 'tree-bv', 'axiom'])
+# plot_by_encoding_for_percent(results, 50, ['tc1', 'tc3', 'tree-bv', 'axiom'])
+plot_by_encoding_for_percent(results, 50)
 
 
 # In[8]:
 
 
-plot_by_encoding_for_percent(results, 90, ['tc1', 'tc3', 'tree-bv', 'axiom'])
+plot_by_encoding_for_percent(results, 75)
 
 
 # In[9]:
+
+
+plot_by_encoding_for_percent(results, 90, ['tc1', 'tc3', 'tree-bv', 'axiom'])
+
+
+# In[10]:
 
 
 def by_encoding(results, encoding):
@@ -105,7 +107,7 @@ def by_encoding(results, encoding):
     return output
 
 
-# In[10]:
+# In[11]:
 
 
 def plot_encoding(results, encoding):
@@ -118,31 +120,31 @@ def plot_encoding(results, encoding):
         
 
 
-# In[11]:
+# In[12]:
 
 
 plot_encoding(results, 'tc1')
 
 
-# In[12]:
+# In[13]:
 
 
 plot_encoding(results, 'mono')
 
 
-# In[13]:
+# In[14]:
 
 
 plot_encoding(results, 'binary-label-minisat')
 
 
-# In[14]:
+# In[15]:
 
 
 plot_encoding(results, 'binary-label-z3')
 
 
-# In[15]:
+# In[16]:
 
 
 def encode_timing_for_percent(results, read_percent, timing):
@@ -155,7 +157,7 @@ def encode_timing_for_percent(results, read_percent, timing):
     return by_encoding
 
 
-# In[16]:
+# In[17]:
 
 
 def plot_encode_time_for_percent(results, read_percent=50, exclude=[]):
@@ -177,13 +179,13 @@ def plot_encode_time_for_percent(results, read_percent=50, exclude=[]):
     ax.legend()
 
 
-# In[17]:
+# In[18]:
 
 
 plot_encode_time_for_percent(results, 50)
 
 
-# In[18]:
+# In[19]:
 
 
 def plot_solve_time_for_percent(results, read_percent=50, exclude=[]):
@@ -205,19 +207,19 @@ def plot_solve_time_for_percent(results, read_percent=50, exclude=[]):
     ax.legend()
 
 
-# In[19]:
+# In[20]:
 
 
 plot_solve_time_for_percent(results, 50, exclude=['tree-bv'])
 
 
-# In[20]:
+# In[21]:
 
 
 # number of clauses?
 
 
-# In[23]:
+# In[50]:
 
 
 import matplotlib.cm as cm
@@ -238,54 +240,71 @@ def plot_sat_vars(results, counts):
     var_counts_x = defaultdict(list)
     solve_time_y = defaultdict(list)
     
+    row_count_binary = 0
+    row_count_unary = 0
+    row_count_topo = 0
+    
     for row in results:
         enc = row['encoding']
         polyg = row['polygraph']
-
-        if has_sat_vars(enc):
+        
+        # Only binary label has variable counts for size over 300.
+        size = int(polyg[len('polygraphs/workloads3/chengR'):].split('-')[1].split('.')[0])         
+        
+        if size <= 300 and has_sat_vars(enc) and polyg:
             count_enc = enc
+            
+            # not really just minisat, but needs that for the label
             if 'binary-label' in enc:
                 count_enc = 'binary-label-minisat'
+                row_count_binary += 1
+    
+            # not really just minisat, but needs that for the label
             elif 'unary-label' in enc:
                 count_enc = 'unary-label-minisat'
+                row_count_unary += 1
             
-            encodings[count_enc] = True
-            
-            var_counts_x[count_enc].append(int(counts[(count_enc, polyg)]['var']))
-            solve_time_y[count_enc].append(total_time(row['result'][1]))
+            elif count_enc == 'topo-bv':
+                row_count_topo += 1
+                
+            if not 'tc' in count_enc and count_enc != 'axiom':            
+                encodings[count_enc] = True
+                var_counts_x[count_enc].append(int(counts[(count_enc, polyg)]['var']))
+                solve_time_y[count_enc].append(total_time(row['result'][1]))
     
     for encoding in encodings:
-        ax.scatter(var_counts_x[encoding], solve_time_y[encoding])
+            ax.scatter(var_counts_x[encoding], solve_time_y[encoding])
     
-    ax.set_xscale('log')
-    ax.legend(encodings.keys())
+    ax.set_yscale('log')
+    ax.legend(encodings)
 
 
-# In[24]:
+# In[51]:
 
 
 plot_sat_vars(results, counts)
 
 
-# In[ ]:
+# In[52]:
 
 
-plot_by_encoding_for_percent(results, 50, ['binary-label-minisat', 'binary-label-z3', 'binary-label-yices2'], False)
+binary_unary = ['binary-label-minisat', 'binary-label-z3', 'binary-label-yices2', 'unary-label-minisat', 'unary-label-z3', 'unary-label-yices2']
+plot_by_encoding_for_percent(results, 50, binary_unary, False, False)
 
 
-# In[ ]:
+# In[53]:
 
 
 plot_by_encoding_for_percent(results, 50, ['unary-label-minisat', 'unary-label-z3', 'unary-label-yices2'], False)
 
 
-# In[ ]:
+# In[54]:
 
 
 plot_by_encoding_for_percent(results, 50, ['tree-bv'])
 
 
-# In[ ]:
+# In[55]:
 
 
 def plot_sat_vars_solves(results, counts):
@@ -319,14 +338,14 @@ def plot_sat_vars_solves(results, counts):
     ax.legend(encodings.keys())
 
 
-# In[25]:
+# In[56]:
 
 
 # TODO: how to interpret log scale graphs?
 plot_sat_vars_solves(results, counts)
 
 
-# In[26]:
+# In[57]:
 
 
 plot_by_encoding_for_percent(results, 75, ['binary-label-minisat', 'binary-label-z3', 'binary-label-yices2'], False)
