@@ -78,7 +78,7 @@ def plot_by_encoding_for_percent(results, read_percent=50, encodings=[], exclude
     ax.set_ylabel('Total run time (seconds)')
 
 
-# In[64]:
+# In[67]:
 
 
 # plot_by_encoding_for_percent(results, 50, ['tc1', 'tc3', 'tree-bv', 'axiom'])
@@ -222,7 +222,7 @@ plot_solve_time_for_percent(results, 50, exclude=['tree-bv'])
 # number of clauses?
 
 
-# In[58]:
+# In[73]:
 
 
 import matplotlib.cm as cm
@@ -278,7 +278,7 @@ def plot_sat_vars(results, counts):
     for encoding in encodings:
             ax.scatter(var_counts_x[encoding], solve_time_y[encoding])
     
-    ax.set_yscale('log')
+#     ax.set_yscale('log')
     ax.legend(encodings)
     
     ax.set_xlabel('# variables')
@@ -286,7 +286,7 @@ def plot_sat_vars(results, counts):
     
 
 
-# In[59]:
+# In[74]:
 
 
 plot_sat_vars(results, counts)
