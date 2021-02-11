@@ -37,9 +37,9 @@ Runtime tends to grow exponentially with respect to node counts. `mono` is the c
 
 ####  Plot of log of total runtime against number of nodes for 50:50 read-write ratio polygraphs
 
-![Plot of runtime against number of nodes for 50:50 read-write ratio polygraphs](images/runtime-against-nodes.png)
-
 \**tree-bv for node counts over 200 excluded because of timeouts*
+
+![Plot of runtime against number of nodes for 50:50 read-write ratio polygraphs](images/runtime-against-nodes.png)
 
 ### How do different solvers perform with the same encoding?
 
@@ -55,9 +55,9 @@ We define variables in the standard way for SAT and as Z3 variables for SMT. We 
 
 #### Plot of log solve time against number of SAT variables for all polygraphs
 
-![Plot of solve time against number of variables for all polygraphs](images/solve-time-against-variables.png)
-
 \**For this graph only, `binary-label-minisat` and `unary-label-minisat` include all binary labeling and unary labeling solvers, not just MiniSAT*
+
+![Plot of solve time against number of variables for all polygraphs](images/solve-time-against-variables.png)
 
 ## Usage
 
