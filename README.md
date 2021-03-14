@@ -5,16 +5,16 @@ Using SAT/SMT solvers to check serializability of _black-box_ databases. 🐍
 ## About
 
 This project compares the performance of different SAT/SMT encodings
-and solvers for verifying the serializability of black-box database.
+and solvers for verifying the serializability of black-box databases.
 
 Our motivation is to understand how different encodings and solvers influence the verification performance.
 In particular,
 we experiment with existing SAT/SMT encodings and widely used solvers
-under the workloads of verifying serializability of transaction histories.
+under the workloads of transaction histories' serializability verification (see [[1]](#cobra)).
 
 ## Experiments
 
-We evaluated the existing serializability encodings (or polygraph acylicity encoding, see section 2.3 [[1]](#cobra)), including: 
+We evaluated the existing serializability encodings (or polygraph acyclicity encoding, see section 2.3 [[1]](#cobra)), including: 
 - SAT binary labeling encoding, using Tseitin's transformation for encoding lexographic ordering [[2]](#cite2)
   - Z3 (`*-z3`), Yices2 (`*-yices2`), and MiniSAT (`*-minisat`).
 - SAT unary labeling encoding [[2]](#cite2)
@@ -57,7 +57,7 @@ Note that \*tree-bv for node counts over 200 excluded because of timeouts.
 #### Plot of runtime against number of nodes for 75:25 read-write ratio polygraphs, comparing solver backends
 -->
 
-We compare different solver backends (Z3, MiniSAT, and Yices2) with the same encodings (bianry and unary labeling) for the same workload (75:25 read-write ratio workload), and the results are as follows.
+We compare different solver backends (Z3, MiniSAT, and Yices2) with the same encodings (binary and unary labeling) for the same workload (75:25 read-write ratio workload), and the results are as follows.
 
 
 ![Plot of runtime against number of nodes for 75:25 read-write ratio polygraphs, comparing solver backends](images/backend-comparison.png)
@@ -90,7 +90,7 @@ Note that for this graph only, `binary-label-minisat` and `unary-label-minisat` 
 
 You can install from source and place the resulting binary in `.venv/bin` if you are using `venv`.
 
-## Usage (reporduce our results)
+## Usage (reproduce our results)
 
 Use `verify.py` to solve a given polygraph with a given encoding.
 
