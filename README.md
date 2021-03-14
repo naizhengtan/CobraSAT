@@ -4,24 +4,28 @@ Using SAT/SMT solvers to check serializability of _black-box_ databases. 🐍
 
 ## About
 
-This project compares the performance of different SAT/SMT encodings and solvers for verifying the serializability of black-box database.
+This project compares the performance of different SAT/SMT encodings
+and solvers for verifying the serializability of black-box database.
 
-This work is motivated by Cobra, described in Tan 2020 [[1]](#cobra). We explore alternative SAT/SMT encodings as a baseline for naively solving the serializability of database read-write histories.
+Our motivation is to understand how different encodings and solvers influence the verification performance.
+In particular,
+we experiment with existing SAT/SMT encodings and widely used solvers
+under the workloads of verifying serializability of transaction histories.
 
 ## Experiments
 
-We evaluated the performance of: 
-- SAT binary labeling encoding of polygraph acyclicity, using Tseitin's transformation for encoding lexographic ordering [[2]](#cite2)
+We evaluated the existing serializability encodings (or polygraph acylicity encoding, see section 2.3 [[1]](#cobra)), including: 
+- SAT binary labeling encoding, using Tseitin's transformation for encoding lexographic ordering [[2]](#cite2)
   - Z3 (`*-z3`), Yices2 (`*-yices2`), and MiniSAT (`*-minisat`).
-- SAT unary labeling encoding of polygraph acyclicity [[2]](#cite2)
+- SAT unary labeling encoding [[2]](#cite2)
   - Z3 (`*-z3`), Yices2 (`*-yices2`), and MiniSAT (`*-minisat`).
-- Transitive closure encoding (`tc1`, `tc3`) of polygraph acyclicity [[2]](#cite2). 
+- Transitive closure encoding (`tc1`, `tc3`) [[2]](#cite2). 
   - `tc` was encoded directly using Z3's `TransitiveClosure` relation [[6]](#z3).
-- SMT topological ordering encoding of polygraph acyclicity [[3]](#cite3).
+- SMT topological ordering encoding [[3]](#cite3).
   - `topo-bv` was using Z3's `BitVec` variables, and `topo-int` was using Z3's `Int` variables [[6]](#z3).
-- Tree reduction encoding of polygraph acyclicity [[3]](#cite3)
+- Tree reduction encoding [[3]](#cite3)
 - Serializability consistency axioms (`axiom`) of database history [[4]](#cite4).
-- Direct MonoSAT encoding (`mono`) of polygraph acylicity [[5]](#monosat).
+- Direct MonoSAT encoding (`mono`) [[5]](#monosat).
 
 We ran the experiments on benchmark with different ratios of random read-only and write-only transactions (see details in section 6 of paper [[1]](#cobra)). The read:write ratio workloads tested were 50:50, 75:25, and 90:10. The workloads are given as polygraph files (`.polyg`) consisting of node counts, edges, and constraints. Nodes correspond to transactions, and edges as write-read dependencies. Writes have been combined to reduce constraints in the polygraph. (see section 2.3 and 3.1 of Cobra paper [[1]](#cobra).)
 
