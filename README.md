@@ -10,11 +10,11 @@ and solvers for verifying the serializability of black-box databases.
 Our motivation is to understand how different encodings and solvers influence the verification performance.
 In particular,
 we experiment with existing SAT/SMT encodings and widely used solvers
-under the workloads of transaction histories' serializability verification (see [[1]](#cobra)).
+under transaction history workloads for verifying serializability (see [[1]](#cobra)).
 
 ## Experiments
 
-We evaluated the existing serializability encodings (or polygraph acyclicity encoding, see section 2.3 [[1]](#cobra)), including: 
+We evaluated existing serializability encodings (or polygraph acyclicity encoding, see section 2.3 [[1]](#cobra)), including: 
 - SAT binary labeling encoding, using Tseitin's transformation for encoding lexographic ordering [[2]](#cite2)
   - Z3 (`*-z3`), Yices2 (`*-yices2`), and MiniSAT (`*-minisat`).
 - SAT unary labeling encoding [[2]](#cite2)
@@ -27,7 +27,7 @@ We evaluated the existing serializability encodings (or polygraph acyclicity enc
 - Serializability consistency axioms (`axiom`) of database history [[4]](#cite4).
 - Direct MonoSAT encoding (`mono`) [[5]](#monosat).
 
-We ran the experiments on benchmark with different ratios of random read-only and write-only transactions (see details in section 6 of paper [[1]](#cobra)). The read:write ratio workloads tested were 50:50, 75:25, and 90:10. The workloads are given as polygraph files (`.polyg`) consisting of node counts, edges, and constraints. Nodes correspond to transactions, and edges as write-read dependencies. Writes have been combined to reduce constraints in the polygraph. (see section 2.3 and 3.1 of Cobra paper [[1]](#cobra).)
+We ran the experiments on a benchmark with different ratios of random read-only and write-only transactions (see details in section 6 of paper [[1]](#cobra)). The read:write ratio workloads tested were 50:50, 75:25, and 90:10. The workloads are given as polygraph files (`.polyg`) consisting of node counts, edges, and constraints. Nodes correspond to transactions, and edges as write-read dependencies. Writes have been combined to reduce constraints in the polygraph (see section 2.3 and 3.1 of Cobra paper [[1]](#cobra)).
 
 Binary and unary labeling encodings were first compiled into DIMACS files by Python before being passed into solvers. `mono` was encoded directly into MonoSAT Python. All others were encoded directly into Z3 Python.
 
@@ -36,7 +36,6 @@ Binary and unary labeling encodings were first compiled into DIMACS files by Pyt
 *For full graphs, see `exploration.ipynb`. Raw data is in `final.pckl`.*
 
 ### How do different encodings and solvers perform? How does runtime grow with larger workloads?
-
 
 <!---
 ####  Plot of log of total runtime against number of nodes for 50:50 read-write ratio polygraphs
